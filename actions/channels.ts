@@ -9,7 +9,18 @@ export const list = async () => {
     try {
         const pb = createServerClient();
 
-        let channels: Channel[] = await pb.collection('channels').getFullList<Channel>();
+        let channels: Channel[] = await pb.collection('channels').getFullList<Channel>({
+            expand: 'root_folder'
+        });
+
+        channels = channels.map(c=>{
+            let c2 = {
+                ...c,
+                ...(c.expand || {})
+            }
+            delete c2.expand;
+            return c2;
+        });
 
         return new Response<Channel[]>("channel", channels).toJSON();
     } catch(e){
@@ -22,11 +33,20 @@ export const getByYoutubeId = async (youtube_id:string) => {
     try {
         const pb = createServerClient();
 
-        let channel = await pb.collection('channels').getFirstListItem<Channel>(`youtube_id = "${youtube_id}"`);
+        let channel = await pb.collection('channels').getFirstListItem<Channel>(`youtube_id = "${youtube_id}"`, {
+            expand: 'root_folder'
+        });
 
         if(!channel) {
             throw new Error('Channel not found');
         }
+
+        channel = {
+            ...channel,
+            ...(channel.expand || {})
+        }
+
+        delete channel.expand;
 
         return new Response<Channel>("channel", channel).toJSON();
     } catch(e){
@@ -39,7 +59,16 @@ export const get = async (id:string) => {
     try {
         const pb = createServerClient();
 
-        let channel: Channel = await pb.collection('channels').getOne<Channel>(id);
+        let channel: Channel = await pb.collection('channels').getOne<Channel>(id, {
+            expand: 'root_folder'
+        });
+
+        channel = {
+            ...channel,
+            ...(channel.expand || {})
+        }
+
+        delete channel.expand;
 
         return new Response<Channel>("channel", channel).toJSON();
     } catch(e){
@@ -69,7 +98,16 @@ export const search = async (q:string) => {
 export const add = async (channel: CreateChannel) => {
     try {
         const pb = createServerClient();
-        const newChannel = await pb.collection('channels').create<Channel>(channel);
+        let newChannel = await pb.collection('channels').create<Channel>(channel, {
+            expand: 'root_folder'
+        });
+
+        newChannel = {
+            ...newChannel,
+            ...(newChannel.expand || {})
+        }
+
+        delete newChannel.expand;
 
         return new Response<Channel>("channel",newChannel).toJSON();
     } catch(e) {

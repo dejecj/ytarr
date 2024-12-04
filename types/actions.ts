@@ -1,4 +1,4 @@
-type ObjectType = "channel";
+type ObjectType = "channel" | "fs";
 
 interface ISuccessResponse<D, P = undefined> {
     success: true;

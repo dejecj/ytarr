@@ -1,8 +1,11 @@
+import { RootFolder } from "./fs"
+
 interface BaseChannel {
     name: string
     image: string
-    monitored: boolean
+    monitored: "all"|"none"
     youtube_id: string
+    quality: "any"|"2160p"|"1080p"|"720p"|"480p"|"360p"
 }
 
 export interface Channel extends BaseChannel {
@@ -11,9 +14,13 @@ export interface Channel extends BaseChannel {
     updated: string
     collectionId: string
     collectionName: string
+    root_folder: RootFolder
+    expand?: Record<string, any>
 }
 
-export interface CreateChannel extends BaseChannel {}
+export interface CreateChannel extends BaseChannel {
+    root_folder: string
+}
 
 export interface YoutubeChannel {
     publishedAt: string

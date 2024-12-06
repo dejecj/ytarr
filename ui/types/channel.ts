@@ -3,9 +3,9 @@ import { RootFolder } from "./fs"
 interface BaseChannel {
     name: string
     image: string
-    monitored: "all"|"none"
+    monitored: "all" | "none"
     youtube_id: string
-    quality: "any"|"2160p"|"1080p"|"720p"|"480p"|"360p"
+    quality: "any" | "2160p" | "1080p" | "720p" | "480p" | "360p"
 }
 
 export interface Channel extends BaseChannel {
@@ -41,6 +41,26 @@ export interface YoutubeChannel {
     channelTitle: string
     liveBroadcastContent: string
     publishTime: string
+}
+
+interface YoutubeChannelStatistics {
+    "viewCount": number,
+    "subscriberCount": number,
+    "hiddenSubscriberCount": boolean,
+    "videoCount": number
+}
+
+interface YoutTubeChannelBranding {
+    channel: {
+        title: string,
+        description: string,
+        keywords: string,
+        unsubscribedTrailer: string,
+        country: string,
+    },
+    image: {
+        bannerExternalUrl: string
+    }
 }
 
 export interface YoutubeAPIResponse {

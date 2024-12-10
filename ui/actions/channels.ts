@@ -97,6 +97,17 @@ export const search = async (q: string) => {
 
 export const add = async (channel: CreateChannel) => {
     try {
+        let validationErrors: string[] = [];
+        if (!channel.root_folder) validationErrors.push("Root Folder is required");
+        if (!channel.youtube_id) validationErrors.push("Youtube ID is required");
+        if (!channel.description && channel.description !== "") validationErrors.push("Description is required");
+        if (!channel.image) validationErrors.push("Image is required");
+        if (!channel.monitored) validationErrors.push("Monitored option is required");
+        if (!channel.name) validationErrors.push("Name is required");
+        if (!channel.quality) validationErrors.push("Quality is required");
+
+        if (validationErrors.length) throw new Error(validationErrors.join("\n"));
+
         const pb = createServerClient();
 
         let youtubeResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?id=${channel.youtube_id}&key=${process.env.YOUTUBE_API_KEY}&part=snippet,contentDetails,statistics,brandingSettings`);
@@ -118,7 +129,7 @@ export const add = async (channel: CreateChannel) => {
             view_count: youtubeChannel.statistics.viewCount,
             upload_playlist: youtubeChannel.contentDetails.relatedPlaylists.uploads,
             keywords: youtubeChannel.brandingSettings.channel.keywords,
-            banner_image: youtubeChannel.brandingSettings.image.bannerExternalUrl
+            banner_image: youtubeChannel.brandingSettings.image?.bannerExternalUrl || ""
         }, {
             expand: 'root_folder'
         });
@@ -130,19 +141,26 @@ export const add = async (channel: CreateChannel) => {
 
         delete newChannel.expand;
 
-        try {
-            await fetch('http://localhost:9999/jobs', {
-                method: 'POST',
-                body: JSON.stringify({
-                    channel: newChannel.id
-                })
+
+        let syncVideoJob = await fetch('http://localhost:9999/jobs', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: 'update-video-list',
+                channel: newChannel.youtube_id
             })
-        } catch (err) { }
+        });
+
+        if (!syncVideoJob.ok) {
+            console.error(JSON.stringify(await syncVideoJob.json()));
+        }
 
         return new Response<Channel>("channel", newChannel).toJSON();
     } catch (e) {
         const error = new ApiError<BaseError>(e as Error).toJSON();
-        return new Response<Channel, undefined, BaseError>("channel", undefined, undefined, error);
+        return new Response<Channel, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
     }
 }
 

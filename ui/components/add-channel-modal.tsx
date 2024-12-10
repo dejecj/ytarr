@@ -40,7 +40,7 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
     const [isPending, setIsPending] = useState(true);
     const [isAdded, setIsAdded] = useState(false);
     const [selectedRootFolder, setSelectedRootFolder] = useState<string>(rootFolders[0]?.id);
-    const [selectedMonitor, setSelectedMonitor] = useState<"all" | "none">("all");
+    const [selectedMonitor, setSelectedMonitor] = useState<"all" | "future" | "none">("future");
     const [selectedQuality, setSelectedQuality] = useState<"any" | "2160p" | "1080p" | "720p" | "480p" | "360p">("any");
 
     const addChannel = useCallback(async () => {
@@ -60,7 +60,7 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
             setIsAdded(true);
         } else {
             // TODO: add toaster with error message
-            console.error('Failed to add new channel');
+            console.error('Failed to add new channel', newChannel.error);
         }
         setIsPending(false);
     }, [selectedRootFolder, channel, selectedMonitor, selectedQuality]);
@@ -78,7 +78,7 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
         } else {
             setIsAdded(false);
             setSelectedRootFolder(rootFolders[0]?.id);
-            setSelectedMonitor('all');
+            setSelectedMonitor('future');
             setSelectedQuality('any');
         }
 
@@ -95,7 +95,7 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
                 <DialogHeader>
                     <div className="flex items-center justify-between">
                         <DialogTitle className="text-xl">
-                            {channel.title} <span className="text-muted-foreground">({channel.publishedAt})</span>
+                            {channel.title} <span className="text-muted-foreground">({new Date(channel.publishedAt).getFullYear()})</span>
                         </DialogTitle>
                     </div>
                 </DialogHeader>
@@ -146,14 +146,14 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
                                     </Tooltip>
                                 </TooltipProvider>
                             </div>
-                            <Select defaultValue="all" value={selectedMonitor} onValueChange={(m: "all" | "none") => setSelectedMonitor(m)}>
+                            <Select defaultValue="future" value={selectedMonitor} onValueChange={(m: "all" | "future" | "none") => setSelectedMonitor(m)}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select monitor option" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Episodes</SelectItem>
-                                    {/* <SelectItem value="future">Future Episodes</SelectItem>
-                                    <SelectItem value="missing">Missing Episodes</SelectItem>
+                                    <SelectItem value="future">Future Episodes</SelectItem>
+                                    {/* <SelectItem value="missing">Missing Episodes</SelectItem>
                                     <SelectItem value="existing">Existing Episodes</SelectItem> */}
                                     <SelectItem value="none">None</SelectItem>
                                 </SelectContent>

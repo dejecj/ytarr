@@ -5,7 +5,7 @@ type VideoQuality = 'any' | '2160p' | '1080p' | '720p' | '480p' | '360p';
 interface BaseChannel {
     name: string
     image: string
-    monitored: "all" | "none"
+    monitored: "all" | "future" | "none"
     youtube_id: string
     quality: VideoQuality
     description: string;
@@ -42,6 +42,7 @@ interface BaseChannelVideo {
     status: 'none' | 'queued' | 'downloading' | 'finished'
     quality?: VideoQuality
     progress?: number
+    monitored: boolean
 }
 
 export interface ChannelVideo extends BaseChannelVideo {

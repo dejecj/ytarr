@@ -43,6 +43,21 @@ export const channelWorker = new Worker<ChannelJob>(
                   nextPageToken = "";
                   return;
                 }
+
+                let isMonitored = false;
+
+                switch (channelMetadata.monitored) {
+                  case 'all':
+                    isMonitored = true;
+                    break;
+                  case 'future':
+                    isMonitored = new Date(video.contentDetails.videoPublishedAt) > new Date(channelMetadata.created);
+                    break;
+                  case 'none':
+                    isMonitored = false;
+                    break;
+                }
+
                 const newChannel: CreateChannelVideo = {
                   channel: channelMetadata.id,
                   status: "none",
@@ -51,6 +66,7 @@ export const channelWorker = new Worker<ChannelJob>(
                   description: video.snippet.description,
                   image: video.snippet.thumbnails.default.url,
                   published: video.contentDetails.videoPublishedAt,
+                  monitored: isMonitored
                 };
                 batch.collection("channel_videos").create(newChannel);
               }

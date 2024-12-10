@@ -39,6 +39,7 @@ export const listRootFolders = async () => {
 
         return new Response<RootFolder[]>("fs", folders).toJSON();
     } catch (e) {
+        console.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<RootFolder[], undefined, BaseError>("fs", undefined, undefined, error).toJSON();
     }

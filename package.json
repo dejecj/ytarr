@@ -3,9 +3,12 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "./pocketbase serve & cd ui && pnpm dev",
-        "build": "next build",
-        "start": "next start",
-        "lint": "next lint"
+        "ui:dev": "cd ui && pnpm dev",
+        "ui:build": "next build",
+        "ui:start": "next start",
+        "ui:lint": "next lint",
+        "cron:dev": "cd cron && pnpm dev",
+        "db:start": "./pocketbase serve",
+        "db:init": "./pocketbase superuser upsert admin@ytarr.local admin_ytarr && ./pocketbase migrate"
     }
 }

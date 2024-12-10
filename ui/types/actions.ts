@@ -1,4 +1,4 @@
-type ObjectType = "channel" | "fs";
+type ObjectType = "channel" | "fs" | "video";
 
 interface ISuccessResponse<D, P = undefined> {
     success: true;
@@ -13,8 +13,8 @@ interface IErrorResponse<E> {
     error: E;
 }
 
-type IResponse<D, P = undefined, E = undefined> = 
-    | ISuccessResponse<D, P> 
+type IResponse<D, P = undefined, E = undefined> =
+    | ISuccessResponse<D, P>
     | IErrorResponse<E>;
 
 export class Response<D, P = undefined, E = undefined> {

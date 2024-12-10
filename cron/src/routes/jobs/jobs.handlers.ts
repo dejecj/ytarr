@@ -24,8 +24,7 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
     }
     case "update-video-list": {
       await Jobs.fetchVideoList({
-        channel: jobData.channel,
-        playlist: jobData.playlist,
+        channel: jobData.channel as string,
       });
       break;
     }

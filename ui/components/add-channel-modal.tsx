@@ -40,8 +40,8 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
     const [isPending, setIsPending] = useState(true);
     const [isAdded, setIsAdded] = useState(false);
     const [selectedRootFolder, setSelectedRootFolder] = useState<string>(rootFolders[0]?.id);
-    const [selectedMonitor, setSelectedMonitor] = useState<"all"|"none">("all");
-    const [selectedQuality, setSelectedQuality] = useState<"any"|"2160p"|"1080p"|"720p"|"480p"|"360p">("any");
+    const [selectedMonitor, setSelectedMonitor] = useState<"all" | "none">("all");
+    const [selectedQuality, setSelectedQuality] = useState<"any" | "2160p" | "1080p" | "720p" | "480p" | "360p">("any");
 
     const addChannel = useCallback(async () => {
         setIsPending(true);
@@ -51,7 +51,8 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
             monitored: selectedMonitor,
             youtube_id: channel.channelId,
             root_folder: selectedRootFolder as string,
-            quality: selectedQuality
+            quality: selectedQuality,
+            description: channel.description
         });
 
         if (newChannel.success) {
@@ -62,7 +63,7 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
             console.error('Failed to add new channel');
         }
         setIsPending(false);
-    },[selectedRootFolder, channel, selectedMonitor, selectedQuality]);
+    }, [selectedRootFolder, channel, selectedMonitor, selectedQuality]);
 
     const getChannelStatus = async () => {
         setIsPending(true);
@@ -119,12 +120,12 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
                                     </Tooltip>
                                 </TooltipProvider>
                             </div>
-                            <Select value={selectedRootFolder} onValueChange={(rf)=>setSelectedRootFolder(rf)}>
+                            <Select value={selectedRootFolder} onValueChange={(rf) => setSelectedRootFolder(rf)}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select root folder" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {rootFolders.map(rf=>
+                                    {rootFolders.map(rf =>
                                         <SelectItem key={rf.id} value={rf.id}>{rf.path}</SelectItem>
                                     )}
                                 </SelectContent>
@@ -145,7 +146,7 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
                                     </Tooltip>
                                 </TooltipProvider>
                             </div>
-                            <Select defaultValue="all" value={selectedMonitor} onValueChange={(m:"all"|"none")=>setSelectedMonitor(m)}>
+                            <Select defaultValue="all" value={selectedMonitor} onValueChange={(m: "all" | "none") => setSelectedMonitor(m)}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select monitor option" />
                                 </SelectTrigger>
@@ -161,7 +162,7 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Quality Profile</label>
-                            <Select defaultValue="any" value={selectedQuality} onValueChange={(q:"any"|"2160p"|"1080p"|"720p"|"480p"|"360p")=>setSelectedQuality(q)}>
+                            <Select defaultValue="any" value={selectedQuality} onValueChange={(q: "any" | "2160p" | "1080p" | "720p" | "480p" | "360p") => setSelectedQuality(q)}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select quality profile" />
                                 </SelectTrigger>
@@ -178,7 +179,7 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Tags</label>
-                            <Input placeholder="Enter tags" disabled={true}/>
+                            <Input placeholder="Enter tags" disabled={true} />
                         </div>
 
                         <div className="space-y-2">

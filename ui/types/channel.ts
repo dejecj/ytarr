@@ -1,11 +1,14 @@
 import { RootFolder } from "./fs"
 
+type VideoQuality = 'any' | '2160p' | '1080p' | '720p' | '480p' | '360p';
+
 interface BaseChannel {
     name: string
     image: string
     monitored: "all" | "none"
     youtube_id: string
-    quality: "any" | "2160p" | "1080p" | "720p" | "480p" | "360p"
+    quality: VideoQuality
+    description: string;
 }
 
 export interface Channel extends BaseChannel {
@@ -14,12 +17,45 @@ export interface Channel extends BaseChannel {
     updated: string
     collectionId: string
     collectionName: string
-    root_folder: RootFolder
+    root_folder: RootFolder,
+    slug: string;
+    published: string;
+    video_count: number;
+    subscriber_count: number;
+    view_count: number;
+    upload_playlist: string;
+    keywords: string;
+    banner_image: string;
     expand?: Record<string, any>
 }
 
 export interface CreateChannel extends BaseChannel {
     root_folder: string
+}
+
+interface BaseChannelVideo {
+    youtube_id: string
+    title: string
+    image: string
+    description: string
+    published: string
+    status: 'none' | 'queued' | 'downloading' | 'finished'
+    quality?: VideoQuality
+    progress?: number
+}
+
+export interface ChannelVideo extends BaseChannelVideo {
+    id: string
+    created: string
+    updated: string
+    collectionId: string
+    collectionName: string
+    expand?: Record<string, any>
+    channel: Channel
+}
+
+export interface CreateChannelVideo extends BaseChannelVideo {
+    channel: string
 }
 
 export interface YoutubeChannel {
@@ -41,26 +77,7 @@ export interface YoutubeChannel {
     channelTitle: string
     liveBroadcastContent: string
     publishTime: string
-}
-
-interface YoutubeChannelStatistics {
-    "viewCount": number,
-    "subscriberCount": number,
-    "hiddenSubscriberCount": boolean,
-    "videoCount": number
-}
-
-interface YoutTubeChannelBranding {
-    channel: {
-        title: string,
-        description: string,
-        keywords: string,
-        unsubscribedTrailer: string,
-        country: string,
-    },
-    image: {
-        bannerExternalUrl: string
-    }
+    customUrl: string
 }
 
 export interface YoutubeAPIResponse {
@@ -79,6 +96,31 @@ export interface YoutubeAPIResponse {
             kind: string
             channelId: string
         }
-        snippet: YoutubeChannel
+        snippet: YoutubeChannel,
+        contentDetails: {
+            relatedPlaylists: {
+                likes: string,
+                uploads: string,
+            }
+        },
+        statistics: {
+            viewCount: string,
+            subscriberCount: string,
+            hiddenSubscriberCount: false,
+            videoCount: string,
+        },
+        brandingSettings: {
+            channel: {
+                title: string,
+                description: string,
+                keywords: string,
+                trackingAnalyticsAccountId: string,
+                unsubscribedTrailer: string,
+                country: string,
+            },
+            image: {
+                bannerExternalUrl: string,
+            }
+        }
     }[]
 }

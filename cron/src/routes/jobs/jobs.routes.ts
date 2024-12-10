@@ -7,17 +7,16 @@ const tags = ["Jobs"];
 
 const JobCreateSchema = z.object({
   type: z.enum(["update-video-list", "update-channel-meta", "download-video"]),
-  channel: z.string().min(1),
-  playlist: z.string().optional().describe("Required if type is 'update-video-list'"),
+  channel: z.string().min(1).optional().describe("Required if type is 'update-channel-meta' or 'update-video-list'"),
   video: z.string().optional().describe("Required if type is 'download-video'"),
 }).superRefine((input, ctx) => {
-  if (input.type === "update-video-list" && !input.playlist) {
+  if (["update-video-list", "update-channel-meta"].includes(input.type) && !input.channel) {
     ctx.addIssue({
       code: z.ZodIssueCode.invalid_type,
       expected: "string",
       received: "undefined",
-      path: ["playlist"],
-      message: "Required when type is 'update-video-list'",
+      path: ["channel"],
+      message: "Required when type is 'update-channel-meta' or 'update-video-list'",
     });
   }
 

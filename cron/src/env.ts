@@ -7,7 +7,9 @@ expand(config());
 const EnvSchema = z.object({
   NODE_ENV: z.string().default("development"),
   PORT: z.coerce.number().default(9999),
-  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]),
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
+  YOUTUBE_DATA_API_BASE_URL: z.string(),
+  YOUTUBE_API_KEY: z.string(),
 });
 
 export type env = z.infer<typeof EnvSchema>;

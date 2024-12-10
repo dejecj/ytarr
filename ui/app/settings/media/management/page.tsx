@@ -5,6 +5,10 @@ export default async function MediaManagementPage() {
 
   let rootFolders = await listRootFolders();
 
+  if (!rootFolders.success) {
+    console.error(rootFolders.error);
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Video Naming Section */}
@@ -73,8 +77,8 @@ export default async function MediaManagementPage() {
       {/* Root Folders Section */}
       {
         rootFolders.success ?
-          <RootFoldersSection folders={rootFolders.data}/>
-        :
+          <RootFoldersSection folders={rootFolders.data} />
+          :
           <p>Oops! We've hit a snag fetching your root folders! Refresh to try again.</p>
       }
     </div>

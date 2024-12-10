@@ -55,7 +55,7 @@ export const videoWorker = new Worker<VideoJob>(
         "--write-thumbnail",
         `--exec "mv '${basePath}'/.tmp/'%(title)s'.mkv ${basePath}"`,
         `--exec "mv '${basePath}'/.tmp/'%(title)s'.webp ${basePath}"`,
-        video,
+        `"https://youtube.com/watch?v=${video}"`,
       ], {
         shell: true, // Use shell to properly handle quoted arguments
       });

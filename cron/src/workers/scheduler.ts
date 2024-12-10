@@ -23,3 +23,15 @@ export const videoMonitor =
       });
     }
   });
+
+export const videoListSync =
+  cron.schedule('0 * * * *', async () => {
+    pino.info('Running video list sync task.')
+    let channels = await pb.collection('channels').getFullList<Channel>();
+
+    for (let channel of channels) {
+      await fetchVideoList({
+        channel: channel.youtube_id
+      });
+    }
+  });

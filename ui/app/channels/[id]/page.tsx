@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { get, listAllVideos } from "@/actions/channels"
 import { formatNumber } from "@/lib/utils"
-import VideoList from "./video-list"
+import VideoList from "./_components/video-list"
 
 export default async function ChannelPage({ params }: { params: { id: string } }) {
   const { id } = await params;

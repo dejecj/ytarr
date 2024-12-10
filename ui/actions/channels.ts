@@ -179,3 +179,33 @@ export const listAllVideos = async (channel: string) => {
         return new Response<ChannelVideo[], undefined, BaseError>("video", undefined, undefined, error).toJSON();
     }
 }
+
+export const downloadVideo = async (youtube_id: string) => {
+    try {
+        const pb = createServerClient();
+
+        let video = await pb.collection('channel_videos').getFirstListItem<ChannelVideo>(`youtube_id = "${youtube_id}"`);
+
+        let videoDownloadJob = await fetch('http://localhost:9999/jobs', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                type: 'download-video',
+                video: video.youtube_id
+            })
+        });
+
+        if (!videoDownloadJob.ok) {
+            console.error(await videoDownloadJob.json());
+            throw new Error(`We ran into a problem starting video download with id: ${youtube_id}`);
+        }
+
+        return new Response<ChannelVideo>("video", video).toJSON();
+    } catch (e) {
+        console.error(e);
+        const error = new ApiError<BaseError>(e as Error).toJSON();
+        return new Response<ChannelVideo, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
+    }
+}

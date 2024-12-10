@@ -1,14 +1,15 @@
 "use client"
 
-import { MoreHorizontal, Search } from 'lucide-react'
+import { Download, MoreHorizontal, Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { formatNumber } from "@/lib/utils"
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createBrowserClient } from '@/lib/pocketbase'
 import { Channel, ChannelVideo } from '@/types/channel'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
+import { downloadVideo } from '@/actions/channels'
 
 interface VideoListProps {
   channel: Channel
@@ -18,11 +19,28 @@ interface VideoListProps {
 export default function VideoList({ channel, initialVideos }: VideoListProps) {
 
   const [videos, setVideos] = useState<ChannelVideo[]>([]);
+  const [temporaryBlock, setTemporaryBlock] = useState<string[]>([]);
 
-  const renderStatus = (video: ChannelVideo) => {
+  const requestDownload = async (youtube_id: string) => {
+    await downloadVideo(youtube_id);
+  }
+
+  const renderStatus = useCallback((video: ChannelVideo) => {
     switch (video.status) {
       case 'none':
-        return null;
+        return <Button
+          disabled={temporaryBlock.find(id => id === video.youtube_id) ? true : false}
+          className="p-1 h-6 bg-secondary border border-primary text-primary hover:text-white"
+          onClick={() => {
+            requestDownload(video.youtube_id);
+            setTemporaryBlock(prev => [...prev, video.youtube_id]);
+            setTimeout(() => {
+              setTemporaryBlock(prev => prev.filter(id => id !== video.youtube_id));
+            }, 10000)
+          }}
+        >
+          <Download />
+        </Button>
       case 'queued':
         return <Badge>Queued</Badge>;
       case 'downloading':
@@ -30,7 +48,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
       case 'finished':
         return <Badge>{video.quality}</Badge>
     }
-  }
+  }, [temporaryBlock])
 
   useEffect(() => {
     const pb = createBrowserClient();

@@ -1,7 +1,7 @@
 import { Queue } from "bullmq";
 import crypto from "node:crypto";
 
-import type { ChannelJob } from "@/lib/types";
+import type { ChannelJob, VideoJob } from "@/lib/types";
 
 // Function to create a unique hash for deduplication
 function hashData(data: any): string {
@@ -24,7 +24,7 @@ export async function fetchVideoList(data: ChannelJob) {
   });
 }
 
-export async function updateChannelMetadata(data: any) {
+export async function updateChannelMetadata(data: ChannelJob) {
   const jobId = hashData(data);
   await channelMetadataDataQueue.add("update-channel-metadata", data, {
     jobId,
@@ -33,7 +33,7 @@ export async function updateChannelMetadata(data: any) {
   });
 }
 
-export async function downloadVideo(data: any) {
+export async function downloadVideo(data: VideoJob) {
   const jobId = hashData(data);
   await videoDownloadQueue.add("download-video", data, {
     jobId,

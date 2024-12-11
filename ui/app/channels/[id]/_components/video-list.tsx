@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { downloadVideo } from '@/actions/channels'
+import MonitorToggle from './video-list-monitor'
 
 interface VideoListProps {
   channel: Channel
@@ -105,6 +106,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
       <table className="w-full">
         <thead>
           <tr className="border-b bg-gray-50">
+            <th className="p-2 text-left font-medium text-gray-500"></th>
             <th className="p-2 text-left font-medium text-gray-500">#</th>
             <th className="p-2 text-left font-medium text-gray-500">Title</th>
             <th className="p-2 text-left font-medium text-gray-500">Published Date</th>
@@ -114,6 +116,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
         <tbody>
           {videos.map((video, index) => (
             <tr key={index} className="border-b last:border-b-0">
+              <td><MonitorToggle video={video} initialState={video.monitored} /></td>
               <td className="p-2 text-sm">{Math.abs(index - videos.length)}</td>
               <td className="p-2 text-sm">
                 {video.title}

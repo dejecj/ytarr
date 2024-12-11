@@ -270,6 +270,21 @@ export const downloadVideo = async (youtube_id: string) => {
     }
 }
 
+export const changeVideoMonitorStatus = async (id: string, status: boolean) => {
+    try {
+        const pb = createServerClient();
+
+        let video = await pb.collection('channel_videos').update<ChannelVideo>(id, {
+            monitored: status
+        });
+
+        return new Response<ChannelVideo>("channel", video).toJSON();
+    } catch (e) {
+        const error = new ApiError<BaseError>(e as Error).toJSON();
+        return new Response<ChannelVideo, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
+    }
+}
+
 const generateChannelNFO = (channel: Channel): string => {
     // Create a Date object from the published string
     const publishedDate = new Date(channel.published);

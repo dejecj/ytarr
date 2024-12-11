@@ -91,7 +91,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center space-x-2">
           <h2 className="text-xl font-semibold">Videos</h2>
-          <span className="text-sm text-gray-500">{formatNumber(videos.length || 0)} videos / {formatNumber(videos.filter(v => v.status !== 'finished').length)} Missing</span>
+          <span className="text-sm text-gray-500">{formatNumber(videos.length || 0)} videos / {formatNumber(videos.filter(v => v.status !== 'finished' && v.monitored).length)} Missing</span>
         </div>
         <div className="flex items-center space-x-2">
           <Input className="w-64" placeholder="Filter" />

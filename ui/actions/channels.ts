@@ -168,10 +168,6 @@ export const remove = async (id: string) => {
     try {
         const pb = createServerClient();
 
-        let deleted = await pb.collection('channels').delete(id);
-
-        if (!deleted) throw new Error("We ran into a problem removing channel");
-
         try {
             const batch = pb.createBatch();
             let videos = await pb.collection('channel_videos').getFullList({
@@ -185,6 +181,10 @@ export const remove = async (id: string) => {
 
             await batch.send();
         } catch (err) { }
+
+        let deleted = await pb.collection('channels').delete(id);
+
+        if (!deleted) throw new Error("We ran into a problem removing channel");
 
         return new Response<string>("channel", id).toJSON();
     } catch (e) {

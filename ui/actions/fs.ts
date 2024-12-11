@@ -33,8 +33,10 @@ export const listRootFolders = async () => {
         const folders = await pb.collection('root_folders').getFullList<RootFolder>()
 
         for (let folder of folders) {
-            let spaceInfo = await checkDiskSpace(folder.path);
-            folder.free_space = formatDiskSize(spaceInfo.free);
+            try {
+                let spaceInfo = await checkDiskSpace(folder.path);
+                folder.free_space = formatDiskSize(spaceInfo.free);
+            } catch (e) { }
         }
 
         return new Response<RootFolder[]>("fs", folders).toJSON();

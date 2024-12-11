@@ -37,21 +37,17 @@ export function ChannelSearch({ rootFolders }: ChannelSearchProps) {
 
     setIsLoading(true)
     setHasSearched(true)
-    try {
-      const searchResults = await search(searchQuery);
 
-      if (searchResults.success) {
-        setChannels(searchResults.data)
-      } else {
-        // TODO: add toaster with error
-        setChannels([])
-      }
-    } catch (error) {
-      console.error('Failed to search channels:', error)
+    const searchResults = await search(searchQuery);
+
+    if (searchResults.success) {
+      setChannels(searchResults.data)
+    } else {
+      // TODO: add toaster with error
       setChannels([])
-    } finally {
-      setIsLoading(false)
     }
+
+    setIsLoading(false)
   }
 
   useEffect(() => {

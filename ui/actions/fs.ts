@@ -8,6 +8,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import checkDiskSpace from 'check-disk-space'
 import { formatDiskSize } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 
 export const browseFSFolders = async (pathName?: string) => {
     try {
@@ -22,6 +23,7 @@ export const browseFSFolders = async (pathName?: string) => {
 
         return new Response<FSFolder[]>("fs", folders).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<FSFolder[], undefined, BaseError>("fs", undefined, undefined, error).toJSON();
     }
@@ -36,12 +38,14 @@ export const listRootFolders = async () => {
             try {
                 let spaceInfo = await checkDiskSpace(folder.path);
                 folder.free_space = formatDiskSize(spaceInfo.free);
-            } catch (e) { }
+            } catch (e) {
+                logger.warn(e);
+            }
         }
 
         return new Response<RootFolder[]>("fs", folders).toJSON();
     } catch (e) {
-        console.error(e);
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<RootFolder[], undefined, BaseError>("fs", undefined, undefined, error).toJSON();
     }
@@ -55,6 +59,7 @@ export const addRootFolder = async (folder: CreateRootFolder) => {
         newFolder.free_space = formatDiskSize(spaceInfo.free);
         return new Response<RootFolder>("fs", newFolder).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<RootFolder, undefined, BaseError>("fs", undefined, undefined, error).toJSON();
     }
@@ -72,6 +77,7 @@ export const deleteRootFolder = async (id: string) => {
 
         return new Response<RootFolder>("fs").toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<RootFolder, undefined, BaseError>("fs", undefined, undefined, error).toJSON();
     }

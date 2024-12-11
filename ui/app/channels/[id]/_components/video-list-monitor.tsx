@@ -17,10 +17,7 @@ export default function MonitorToggle({
 
   const toggleMonitorState = useCallback(async () => {
     setIsMonitored(!isMonitored);
-    let videoUpdateStatus = await changeVideoMonitorStatus(video.id, !isMonitored);
-    if (!videoUpdateStatus.success) {
-      console.error(videoUpdateStatus.error);
-    }
+    await changeVideoMonitorStatus(video.id, !isMonitored);
   }, [video, initialState])
 
   return <Bookmark

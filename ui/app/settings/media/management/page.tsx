@@ -5,10 +5,6 @@ export default async function MediaManagementPage() {
 
   const rootFolders = await listRootFolders();
 
-  if (!rootFolders.success) {
-    console.error(rootFolders.error);
-  }
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Video Naming Section */}

@@ -5,6 +5,7 @@ import { Response } from "@/types/actions";
 import { ApiError, BaseError } from "@/types/errors";
 import { createServerClient } from '@/lib/pocketbase';
 import fs from "node:fs";
+import { logger } from '@/lib/logger';
 
 export const list = async () => {
     try {
@@ -25,6 +26,7 @@ export const list = async () => {
 
         return new Response<Channel[]>("channel", channels).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<Channel[], undefined, BaseError>("channel", undefined, undefined, error).toJSON();
     }
@@ -51,6 +53,7 @@ export const getByYoutubeId = async (youtube_id: string) => {
 
         return new Response<Channel>("channel", channel).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<Channel, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
     }
@@ -73,6 +76,7 @@ export const get = async (id: string) => {
 
         return new Response<Channel>("channel", channel).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<Channel, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
     }
@@ -87,10 +91,13 @@ export const search = async (q: string) => {
             let payload: YoutubeAPIResponse = await response.json();
             channels = payload.items.map(i => i.snippet);
         } else {
-            throw new Error(`Failed to fetch Youtube channels. Error: ${response.statusText}`)
+            const error = new Error(`Failed to fetch Youtube channels`)
+            const errorResponse = await response.json();
+            throw Object.assign(error, errorResponse);
         }
         return new Response<YoutubeChannel[]>("channel", channels).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<YoutubeChannel[], undefined, BaseError>("channel", undefined, undefined, error).toJSON();
     }
@@ -117,7 +124,9 @@ export const add = async (channel: CreateChannel) => {
             let payload: YoutubeAPIResponse = await youtubeResponse.json();
             youtubeChannel = payload.items[0];
         } else {
-            throw new Error(`Failed to fetch Youtube channel. Error: ${youtubeResponse.statusText}`)
+            const error = new Error(`Failed to fetch Youtube channel`)
+            const errorResponse = await youtubeResponse.json();
+            throw Object.assign(error, errorResponse);
         }
 
         let newChannel = await pb.collection('channels').create<Channel>({
@@ -155,12 +164,13 @@ export const add = async (channel: CreateChannel) => {
         });
 
         if (!syncVideoJob.ok) {
-            console.error(JSON.stringify(await syncVideoJob.json()));
+            let error = new Error('Ran into a problem adding video sync job');
+            let errorResponse = await syncVideoJob.json();
+            logger.warn(Object.assign(error, errorResponse));
         }
 
         const basePath = `${newChannel.root_folder.path}/${newChannel.name}`;
 
-        // Add metadata .nfo file to channel folder
         try {
             const nfoContent = generateChannelNFO(newChannel);
             if (!fs.existsSync(basePath)) {
@@ -169,10 +179,9 @@ export const add = async (channel: CreateChannel) => {
             fs.writeFileSync(`${basePath}/tvshow.nfo`, nfoContent);
         }
         catch (e) {
-            console.error((e as Error).message);
+            logger.warn(e);
         }
 
-        // Add thumbnail file to channel folder
         try {
             if (channel.image) {
                 const imageReponse = await fetch(channel.image);
@@ -185,11 +194,12 @@ export const add = async (channel: CreateChannel) => {
             }
         }
         catch (e) {
-            console.error((e as Error).message);
+            logger.warn(e);
         }
 
         return new Response<Channel>("channel", newChannel).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<Channel, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
     }
@@ -211,7 +221,9 @@ export const remove = async (id: string) => {
             }
 
             await batch.send();
-        } catch (err) { }
+        } catch (e) {
+            logger.warn(e);
+        }
 
         let deleted = await pb.collection('channels').delete(id);
 
@@ -219,6 +231,7 @@ export const remove = async (id: string) => {
 
         return new Response<string>("channel", id).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<string, undefined, BaseError>("channel", id, undefined, error).toJSON();
     }
@@ -235,6 +248,7 @@ export const listAllVideos = async (channel: string) => {
 
         return new Response<ChannelVideo[]>("video", videos).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<ChannelVideo[], undefined, BaseError>("video", undefined, undefined, error).toJSON();
     }
@@ -258,13 +272,14 @@ export const downloadVideo = async (youtube_id: string) => {
         });
 
         if (!videoDownloadJob.ok) {
-            console.error(await videoDownloadJob.json());
-            throw new Error(`We ran into a problem starting video download.`);
+            let error = new Error('We ran into a problem starting video download.');
+            let errorResponse = await videoDownloadJob.json();
+            throw Object.assign(error, errorResponse);
         }
 
         return new Response<ChannelVideo>("video", video).toJSON();
     } catch (e) {
-        console.error(e);
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<ChannelVideo, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
     }
@@ -280,29 +295,16 @@ export const changeVideoMonitorStatus = async (id: string, status: boolean) => {
 
         return new Response<ChannelVideo>("channel", video).toJSON();
     } catch (e) {
+        logger.error(e);
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<ChannelVideo, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
     }
 }
 
 const generateChannelNFO = (channel: Channel): string => {
-    // Create a Date object from the published string
     const publishedDate = new Date(channel.published);
-
-    // Format date to YYYY-MM-DD using native methods
     const formatDate = (date: Date): string => {
         return date.toISOString().split("T")[0];
-    };
-
-    const truncateDescription = (desc: string, maxLength: number = 300): string => {
-        if (desc.length <= maxLength) return desc;
-
-        // Truncate at the last full word before maxLength
-        const truncated = desc.substring(0, maxLength);
-        return truncated.substring(0, Math.min(
-            truncated.length,
-            truncated.lastIndexOf(' ')
-        )) + '...';
     };
 
     const escapeXml = (unsafe: string): string => {
@@ -314,7 +316,6 @@ const generateChannelNFO = (channel: Channel): string => {
             .replace(/'/g, "&apos;");
     }
 
-    // Create the XML structure using standard NFO tags
     const nfoContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   <tvshow>
     <title>${escapeXml(channel.name)}</title>

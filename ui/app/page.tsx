@@ -7,10 +7,9 @@ export default async function Home() {
   const channels = await list();
 
   const renderChannels = () => {
-    if(channels.success){
+    if (channels.success) {
       return <ChannelGrid channels={channels.data} />
     } else {
-      console.error(channels.error)
       return <div className="flex items-center justify-center h-[calc(100vh-7rem)] text-gray-400">
         <p>Something went wrong fetching channels!</p>
       </div>
@@ -18,11 +17,11 @@ export default async function Home() {
   }
 
   return (
-    
-      <>
-        <Toolbar />
-        {renderChannels()}
-      </>
+
+    <>
+      <Toolbar />
+      {renderChannels()}
+    </>
   )
 }
 

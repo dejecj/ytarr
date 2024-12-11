@@ -12,7 +12,8 @@ const nextConfig: NextConfig = {
                 hostname: '*.googleusercontent.com'
             }
         ]
-    }
+    },
+    serverExternalPackages: ["pino", "pino-pretty"],
 };
 
 export default nextConfig;

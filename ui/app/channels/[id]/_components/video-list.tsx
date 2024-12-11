@@ -77,8 +77,8 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
       }, {
         filter: `channel = "${channel.id}"`
       });
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
     }
 
     return () => {

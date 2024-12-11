@@ -164,6 +164,35 @@ export const add = async (channel: CreateChannel) => {
     }
 }
 
+export const remove = async (id: string) => {
+    try {
+        const pb = createServerClient();
+
+        let deleted = await pb.collection('channels').delete(id);
+
+        if (!deleted) throw new Error("We ran into a problem removing channel");
+
+        try {
+            const batch = pb.createBatch();
+            let videos = await pb.collection('channel_videos').getFullList({
+                filter: `channel = "${id}"`,
+                fields: 'id'
+            });
+
+            for (let video of videos) {
+                batch.collection('channel_videos').delete(video.id);
+            }
+
+            await batch.send();
+        } catch (err) { }
+
+        return new Response<string>("channel", id).toJSON();
+    } catch (e) {
+        const error = new ApiError<BaseError>(e as Error).toJSON();
+        return new Response<string, undefined, BaseError>("channel", id, undefined, error).toJSON();
+    }
+}
+
 export const listAllVideos = async (channel: string) => {
     try {
         const pb = createServerClient();
@@ -199,7 +228,7 @@ export const downloadVideo = async (youtube_id: string) => {
 
         if (!videoDownloadJob.ok) {
             console.error(await videoDownloadJob.json());
-            throw new Error(`We ran into a problem starting video download with id: ${youtube_id}`);
+            throw new Error(`We ran into a problem starting video download.`);
         }
 
         return new Response<ChannelVideo>("video", video).toJSON();

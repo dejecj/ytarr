@@ -1,12 +1,10 @@
 import Image from "next/image"
-import { Bookmark, Download, Edit, History, Trash2 } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { get, listAllVideos } from "@/actions/channels"
 import { formatNumber } from "@/lib/utils"
 import VideoList from "./_components/video-list"
+import TopBar from "./_components/top-bar"
 
 export default async function ChannelPage({ params }: { params: { id: string } }) {
   const { id } = await params;
@@ -48,30 +46,12 @@ export default async function ChannelPage({ params }: { params: { id: string } }
 
   if (channel.success) {
     const channelData = channel.data;
+
     let videos = await listAllVideos(channelData.id);
     return (
       <div className="flex flex-col min-h-screen">
         {/* Top Action Bar */}
-        <div className="flex items-center justify-between p-2 bg-primary text-white">
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" className="text-white">
-              <Download className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="text-white">
-              <Bookmark className="h-4 w-4" />
-            </Button>
-            <Separator orientation="vertical" className="h-6 bg-gray-600" />
-            <Button variant="ghost" size="icon" className="text-white">
-              <History className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="text-white">
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="text-white">
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+        <TopBar channel={channelData} />
 
         {/* Banner and Channel Info */}
         <div className="relative h-[300px]">

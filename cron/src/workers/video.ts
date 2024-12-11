@@ -128,7 +128,7 @@ export const videoWorker = new Worker<VideoJob>(
           }
           catch (e) {
             pino.error("Error reading .info.json or extracting quality");
-            pino.error(e);
+            pino.error((e as Error).message);
           }
 
           try {
@@ -138,7 +138,8 @@ export const videoWorker = new Worker<VideoJob>(
             });
           }
           catch (e) {
-            pino.error(e);
+            pino.error("Error deleting temporary download files");
+            pino.error((e as Error).message);
           }
 
           resolve({
@@ -148,7 +149,6 @@ export const videoWorker = new Worker<VideoJob>(
         }
         else {
           const error = new Error(`yt-dlp download failed with code ${code}`);
-          pino.error(errorOutput);
           await pb.collection("channel_videos").update(videoMetadata.id, {
             status: "none",
             progress: 0,
@@ -163,8 +163,6 @@ export const videoWorker = new Worker<VideoJob>(
 
       // Handle errors
       downloadProcess.on("error", (error) => {
-        pino.error(`Error spawning yt-dlp for video ${video}:`);
-        pino.error(error);
         reject(error);
       });
     });

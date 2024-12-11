@@ -78,7 +78,6 @@ export const channelWorker = new Worker<ChannelJob>(
       }
     }
     catch (e) {
-      pino.error(e);
       throw e;
     }
   },

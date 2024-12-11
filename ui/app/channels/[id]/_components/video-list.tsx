@@ -58,7 +58,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
       pb.collection('channel_videos').subscribe<ChannelVideo>('*', (video) => {
         setVideos((prevVideos) => {
 
-          let existingVideo = prevVideos.find(v => v.id == video.record.id);
+          const existingVideo = prevVideos.find(v => v.id == video.record.id);
 
           if (existingVideo) {
             prevVideos = prevVideos.map(v => {
@@ -83,7 +83,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
     return () => {
       pb.collection('channel_videos').unsubscribe('*');
     }
-  }, [channel])
+  }, [channel, initialVideos])
 
   return <div className="flex-grow bg-gray-100 p-6">
     <div className="bg-white rounded-lg shadow">

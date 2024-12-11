@@ -27,7 +27,7 @@ export const formatNumber = (num: number) => {
     { value: 1_000, suffix: "K" }
   ];
 
-  for (let unit of units) {
+  for (const unit of units) {
     if (num >= unit.value) {
       const formattedNum = (num / unit.value).toFixed(1).replace(/\.0$/, '');
       return `${formattedNum}${unit.suffix}`;

@@ -4,6 +4,7 @@ import { Channel, YoutubeChannel, YoutubeAPIResponse, CreateChannel, ChannelVide
 import { Response } from "@/types/actions";
 import { ApiError, BaseError } from "@/types/errors";
 import { createServerClient } from '@/lib/pocketbase';
+import fs from "node:fs";
 
 export const list = async () => {
     try {
@@ -157,6 +158,36 @@ export const add = async (channel: CreateChannel) => {
             console.error(JSON.stringify(await syncVideoJob.json()));
         }
 
+        const basePath = `${newChannel.root_folder.path}/${newChannel.name}`;
+
+        // Add metadata .nfo file to channel folder
+        try {
+            const nfoContent = generateChannelNFO(newChannel);
+            if (!fs.existsSync(basePath)) {
+                fs.mkdirSync(basePath, { recursive: true });
+            }
+            fs.writeFileSync(`${basePath}/tvshow.nfo`, nfoContent);
+        }
+        catch (e) {
+            console.error((e as Error).message);
+        }
+
+        // Add thumbnail file to channel folder
+        try {
+            if (channel.image) {
+                const imageReponse = await fetch(channel.image);
+                if (!imageReponse.ok) throw new Error('Ran into a problem downloading channel thumbnail');
+                const buffer = Buffer.from(await imageReponse.arrayBuffer());
+                if (!fs.existsSync(basePath)) {
+                    fs.mkdirSync(basePath, { recursive: true });
+                }
+                fs.writeFileSync(`${basePath}/folder.jpg`, buffer);
+            }
+        }
+        catch (e) {
+            console.error((e as Error).message);
+        }
+
         return new Response<Channel>("channel", newChannel).toJSON();
     } catch (e) {
         const error = new ApiError<BaseError>(e as Error).toJSON();
@@ -237,4 +268,46 @@ export const downloadVideo = async (youtube_id: string) => {
         const error = new ApiError<BaseError>(e as Error).toJSON();
         return new Response<ChannelVideo, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
     }
+}
+
+const generateChannelNFO = (channel: Channel): string => {
+    // Create a Date object from the published string
+    const publishedDate = new Date(channel.published);
+
+    // Format date to YYYY-MM-DD using native methods
+    const formatDate = (date: Date): string => {
+        return date.toISOString().split("T")[0];
+    };
+
+    const truncateDescription = (desc: string, maxLength: number = 300): string => {
+        if (desc.length <= maxLength) return desc;
+
+        // Truncate at the last full word before maxLength
+        const truncated = desc.substring(0, maxLength);
+        return truncated.substring(0, Math.min(
+            truncated.length,
+            truncated.lastIndexOf(' ')
+        )) + '...';
+    };
+
+    const escapeXml = (unsafe: string): string => {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&apos;");
+    }
+
+    // Create the XML structure using standard NFO tags
+    const nfoContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <tvshow>
+    <title>${escapeXml(channel.name)}</title>
+    <plot>${escapeXml(channel.description)}</plot>
+    <premiered>${formatDate(publishedDate)}</premiered>
+    <aired>${formatDate(publishedDate)}</aired>
+    <uniqueid type="youtube" default="true">${escapeXml(channel.youtube_id)}</uniqueid>
+  </tvshow>`;
+
+    return nfoContent;
 }

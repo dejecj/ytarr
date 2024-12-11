@@ -19,25 +19,25 @@ interface FolderListProps {
 
 const FolderList = ({ folders, deleteFolder }: FolderListProps) => {
   const [optimisticRootFolders, setOptimisticRootFolder] = useOptimistic(folders);
-  const [ isDeleting, startDelete ] = useTransition();
-  const handleDelete = async (id:string) => {
-      setOptimisticRootFolder(folders.map(f=>{
-        if (f.id === id){
-          return {...f, deleting:true};
-        }
-        return f;
-      }));
-      deleteFolder(id);
+  const [, startDelete] = useTransition();
+  const handleDelete = async (id: string) => {
+    setOptimisticRootFolder(folders.map(f => {
+      if (f.id === id) {
+        return { ...f, deleting: true };
+      }
+      return f;
+    }));
+    deleteFolder(id);
   }
 
   return <div className="space-y-2">
-    {optimisticRootFolders.length === 0 ? 
+    {optimisticRootFolders.length === 0 ?
       <div key={1} className="grid grid-cols-12 gap-4 items-center">
         <div className="col-span-9 text-sm">No folders have been added.</div>
       </div>
-      : null 
+      : null
     }
-    {optimisticRootFolders.map((folder, index) => (
+    {optimisticRootFolders.map((folder) => (
       <div key={folder.id} className="grid grid-cols-12 gap-4 items-center">
         <div className="col-span-9 text-sm">{folder.path}</div>
         <div className="col-span-2 text-sm">{folder.free_space || 'Unknown'}</div>
@@ -45,7 +45,7 @@ const FolderList = ({ folders, deleteFolder }: FolderListProps) => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={()=>{
+            onClick={() => {
               startDelete(() => handleDelete(folder.id));
             }}
           >
@@ -79,7 +79,7 @@ export function RootFoldersSection({ folders }: RootFoldersSectionProps) {
   const handleRootFolderRemove = async (id: string) => {
     const deletedFolder = await deleteRootFolder(id);
     if (deletedFolder.success) {
-      setRootFolders((currentFolders) => currentFolders.filter(f=>f.id!==id));
+      setRootFolders((currentFolders) => currentFolders.filter(f => f.id !== id));
     } else {
       // TODO: add toaster for error message
       console.log(deletedFolder.error);

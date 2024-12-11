@@ -4,7 +4,7 @@ import { list } from "@/actions/channels"
 
 export default async function Home() {
 
-  let channels = await list();
+  const channels = await list();
 
   const renderChannels = () => {
     if(channels.success){

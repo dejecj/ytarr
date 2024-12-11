@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Film, Activity, AlertTriangle, Settings, Monitor, ChevronDown, ChevronRight } from 'lucide-react'
+import { Calendar, Film, Activity, AlertTriangle, Settings, Monitor } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 type MenuItem = {
@@ -86,7 +86,7 @@ function MenuItemComponent({ item, isSubItem = false, openMenuItem, setOpenMenuI
 
   return (
     <>
-      <Link 
+      <Link
         href={item.href}
         className={`flex items-center px-4 py-2 hover:bg-secondary text-sm ${isActive ? 'bg-secondary' : ''} ${isSubItem ? 'pl-8' : ''} ${isOpen && !isSubItem ? 'bg-secondary/50' : ''}`}
         onClick={handleClick}
@@ -97,10 +97,10 @@ function MenuItemComponent({ item, isSubItem = false, openMenuItem, setOpenMenuI
       {isOpen && hasSubItems && (
         <div className="ml-4">
           {item.subItems!.map((subItem) => (
-            <MenuItemComponent 
-              key={subItem.href} 
-              item={subItem} 
-              isSubItem 
+            <MenuItemComponent
+              key={subItem.href}
+              item={subItem}
+              isSubItem
               openMenuItem={openMenuItem}
               setOpenMenuItem={setOpenMenuItem}
             />
@@ -116,7 +116,7 @@ export function Sidebar() {
   const pathname = usePathname()
 
   useEffect(() => {
-    const activeMenuItem = menuItems.find(item => 
+    const activeMenuItem = menuItems.find(item =>
       item.href !== '/' && pathname.startsWith(item.href)
     )
     if (activeMenuItem) {
@@ -130,9 +130,9 @@ export function Sidebar() {
     <div className="w-[200px] bg-background text-foreground min-h-screen pt-16">
       <div className="flex flex-col space-y-1">
         {menuItems.map((item) => (
-          <MenuItemComponent 
-            key={item.href} 
-            item={item} 
+          <MenuItemComponent
+            key={item.href}
+            item={item}
             openMenuItem={openMenuItem}
             setOpenMenuItem={setOpenMenuItem}
           />

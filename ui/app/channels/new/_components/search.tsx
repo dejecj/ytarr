@@ -10,14 +10,15 @@ import { Badge } from '@/components/ui/badge'
 import { YoutubeChannel } from '@/types/channel'
 import { search } from '@/actions/channels'
 import Link from 'next/link'
+import Image from 'next/image'
 import { AddChannelModal } from '@/components/add-channel-modal'
 import { RootFolder } from '@/types/fs'
 
 interface ChannelSearchProps {
-    rootFolders: RootFolder[]
+  rootFolders: RootFolder[]
 }
 
-export function ChannelSearch({rootFolders}:ChannelSearchProps) {
+export function ChannelSearch({ rootFolders }: ChannelSearchProps) {
   const [query, setQuery] = useState('')
   const [debouncedQuery] = useDebounce(query, 500)
   const [isLoading, setIsLoading] = useState(false)
@@ -37,9 +38,9 @@ export function ChannelSearch({rootFolders}:ChannelSearchProps) {
     setIsLoading(true)
     setHasSearched(true)
     try {
-      let searchResults = await search(searchQuery);
+      const searchResults = await search(searchQuery);
 
-      if(searchResults.success){
+      if (searchResults.success) {
         setChannels(searchResults.data)
       } else {
         // TODO: add toaster with error
@@ -143,9 +144,11 @@ export function ChannelSearch({rootFolders}:ChannelSearchProps) {
                 className="flex gap-4 p-4 rounded-lg border bg-card relative group cursor-pointer hover:bg-accent"
                 onClick={() => handleChannelClick(channel)}
               >
-                <img
+                <Image
                   src={channel.thumbnails.default.url}
                   alt={channel.title}
+                  width={100}
+                  height={100}
                   className="h-[100px] w-[100px] rounded object-cover"
                 />
                 <div className="flex-1 min-w-0 flex flex-col justify-between">

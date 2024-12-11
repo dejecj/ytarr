@@ -3,7 +3,7 @@ import { RootFoldersSection } from "@/components/root-folders"
 
 export default async function MediaManagementPage() {
 
-  let rootFolders = await listRootFolders();
+  const rootFolders = await listRootFolders();
 
   if (!rootFolders.success) {
     console.error(rootFolders.error);

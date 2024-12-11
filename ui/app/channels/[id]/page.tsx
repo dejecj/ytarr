@@ -8,14 +8,14 @@ import TopBar from "./_components/top-bar"
 
 export default async function ChannelPage({ params }: { params: { id: string } }) {
   const { id } = await params;
-  let channel = await get(id);
+  const channel = await get(id);
 
   const splitKeywords = (keywordsString: string) => {
     const keywords = [];
     let currentWord = [];
     let inQuotes = false;
 
-    for (let char of keywordsString) {
+    for (const char of keywordsString) {
       if (char === '"') {
         inQuotes = !inQuotes;
 
@@ -47,7 +47,7 @@ export default async function ChannelPage({ params }: { params: { id: string } }
   if (channel.success) {
     const channelData = channel.data;
 
-    let videos = await listAllVideos(channelData.id);
+    const videos = await listAllVideos(channelData.id);
     return (
       <div className="flex flex-col min-h-screen">
         {/* Top Action Bar */}

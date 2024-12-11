@@ -27,6 +27,7 @@ import { YoutubeChannel } from '@/types/channel'
 import { add, getByYoutubeId } from '@/actions/channels'
 import { useCallback, useEffect, useState } from 'react'
 import { RootFolder } from '@/types/fs'
+import Image from 'next/image'
 
 interface AddChannelModalProps {
     channel: YoutubeChannel
@@ -63,31 +64,30 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
             console.error('Failed to add new channel', newChannel.error);
         }
         setIsPending(false);
-    }, [selectedRootFolder, channel, selectedMonitor, selectedQuality]);
-
-    const getChannelStatus = async () => {
-        setIsPending(true);
-
-        const channelCheck = await getByYoutubeId(channel.channelId);
-
-        if (channelCheck.success) {
-            setIsAdded(true);
-            setSelectedRootFolder(channelCheck.data.root_folder.id);
-            setSelectedMonitor(channelCheck.data.monitored);
-            setSelectedQuality(channelCheck.data.quality);
-        } else {
-            setIsAdded(false);
-            setSelectedRootFolder(rootFolders[0]?.id);
-            setSelectedMonitor('future');
-            setSelectedQuality('any');
-        }
-
-        setIsPending(false);
-    }
+    }, [selectedRootFolder, channel, selectedMonitor, selectedQuality, onOpenChange]);
 
     useEffect(() => {
+        const getChannelStatus = async () => {
+            setIsPending(true);
+
+            const channelCheck = await getByYoutubeId(channel.channelId);
+
+            if (channelCheck.success) {
+                setIsAdded(true);
+                setSelectedRootFolder(channelCheck.data.root_folder.id);
+                setSelectedMonitor(channelCheck.data.monitored);
+                setSelectedQuality(channelCheck.data.quality);
+            } else {
+                setIsAdded(false);
+                setSelectedRootFolder(rootFolders[0]?.id);
+                setSelectedMonitor('future');
+                setSelectedQuality('any');
+            }
+
+            setIsPending(false);
+        }
         getChannelStatus();
-    }, [channel])
+    }, [channel, rootFolders])
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -100,9 +100,11 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
                     </div>
                 </DialogHeader>
                 <div className="flex gap-6 mt-4">
-                    <img
+                    <Image
                         src={channel.thumbnails.high.url}
                         alt=""
+                        height={270}
+                        width={180}
                         className="h-[270px] w-[180px] rounded-lg object-cover"
                     />
                     <div className="flex-1 space-y-4">

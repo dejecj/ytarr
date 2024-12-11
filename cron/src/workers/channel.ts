@@ -23,6 +23,7 @@ export const channelWorker = new Worker<ChannelJob>(
             throw new Error("Video not found in library");
 
           const videoMetadata = await pb.collection("channel_videos").getList<ChannelVideo>(1, 1, {
+            filter: `channel = "${channelMetadata.id}"`,
             sort: "-published",
           });
 

@@ -13,6 +13,47 @@ import type { ChannelVideo } from "../../../ui/types/channel";
 const pb = new Pocketbase("http://localhost:8090");
 pb.collection("_superusers").authWithPassword("admin@ytarr.local", "admin_ytarr");
 
+const generateVideoNFO = (video: ChannelVideo): string => {
+  // Create a Date object from the published string
+  const publishedDate = new Date(video.published);
+
+  // Format date to YYYY-MM-DD using native methods
+  const formatDate = (date: Date): string => {
+    return date.toISOString().split("T")[0];
+  };
+
+  const truncateDescription = (desc: string, maxLength: number = 300): string => {
+    if (desc.length <= maxLength) return desc;
+
+    // Truncate at the last full word before maxLength
+    const truncated = desc.substring(0, maxLength);
+    return truncated.substring(0, Math.min(
+      truncated.length,
+      truncated.lastIndexOf(' ')
+    )) + '...';
+  };
+
+  const escapeXml = (unsafe: string): string => {
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+  }
+
+  // Create the XML structure using standard NFO tags
+  const nfoContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<episodedetails>
+  <title>${escapeXml(video.title)}</title>
+  <plot>${escapeXml(truncateDescription(video.description, 300))}</plot>
+  <aired>${formatDate(publishedDate)}</aired>
+  <uniqueid type="youtube" default="true">${escapeXml(video.youtube_id)}</uniqueid>
+</episodedetails>`;
+
+  return nfoContent;
+}
+
 export const videoWorker = new Worker<VideoJob>(
   "video-download",
   async (job) => {
@@ -49,7 +90,6 @@ export const videoWorker = new Worker<VideoJob>(
         "mkv",
         "--progress",
         "--newline",
-        "--embed-metadata",
         `-S \"res:${videoMetadata.channel.quality.replace("p", "")},fps\"`,
         "--write-info-json",
         "--write-thumbnail",
@@ -131,6 +171,7 @@ export const videoWorker = new Worker<VideoJob>(
             pino.error((e as Error).message);
           }
 
+          // Attempt to delete temporary files left over from download
           try {
             fs.rmSync(path.resolve(process.cwd(), `${basePath}/.tmp/*`), {
               recursive: true,
@@ -139,6 +180,16 @@ export const videoWorker = new Worker<VideoJob>(
           }
           catch (e) {
             pino.error("Error deleting temporary download files");
+            pino.error((e as Error).message);
+          }
+
+          // Add .nfo metadata file for new video
+          try {
+            const nfoContent = generateVideoNFO(videoMetadata);
+            fs.writeFileSync(`${basePath}/${videoMetadata.title}.nfo`, nfoContent);
+          }
+          catch (e) {
+            pino.error("Error creating metadata (.nfo) file");
             pino.error((e as Error).message);
           }
 

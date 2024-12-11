@@ -15,70 +15,65 @@ export const channelWorker = new Worker<ChannelJob>(
   "channel-metadata",
   async (job) => {
     pino.info(`Processing job: ${job.name}-${job.id} with data: ${JSON.stringify(job.data)}`);
-    try {
-      switch (job.name) {
-        case "fetch-video-list": {
-          const channelMetadata: Channel = await pb.collection("channels").getFirstListItem(`youtube_id = "${job.data.channel}"`);
-          if (!channelMetadata)
-            throw new Error("Video not found in library");
+    switch (job.name) {
+      case "fetch-video-list": {
+        const channelMetadata: Channel = await pb.collection("channels").getFirstListItem(`youtube_id = "${job.data.channel}"`);
+        if (!channelMetadata)
+          throw new Error("Video not found in library");
 
-          const videoMetadata = await pb.collection("channel_videos").getList<ChannelVideo>(1, 1, {
-            filter: `channel = "${channelMetadata.id}"`,
-            sort: "-published",
-          });
+        const videoMetadata = await pb.collection("channel_videos").getList<ChannelVideo>(1, 1, {
+          filter: `channel = "${channelMetadata.id}"`,
+          sort: "-published",
+        });
 
-          let nextPageToken: string = "";
-          do {
-            const videoList = await fetch(`${env.YOUTUBE_DATA_API_BASE_URL}/playlistItems?playlistId=${channelMetadata.upload_playlist}&key=${env.YOUTUBE_API_KEY}&part=snippet,contentDetails&maxResults=50&pageToken=${nextPageToken}`);
-            if (videoList.ok) {
-              const listPayload: YoutubeAPIResponse = await videoList.json();
+        let nextPageToken: string = "";
+        do {
+          const videoList = await fetch(`${env.YOUTUBE_DATA_API_BASE_URL}/playlistItems?playlistId=${channelMetadata.upload_playlist}&key=${env.YOUTUBE_API_KEY}&part=snippet,contentDetails&maxResults=50&pageToken=${nextPageToken}`);
+          if (videoList.ok) {
+            const listPayload: YoutubeAPIResponse = await videoList.json();
 
-              const batch = pb.createBatch();
-              for (const video of listPayload.items) {
-                if (video.contentDetails.videoId === videoMetadata.items[0]?.youtube_id) {
-                  await batch.send();
-                  nextPageToken = "";
-                  return;
-                }
-
-                let isMonitored = false;
-
-                switch (channelMetadata.monitored) {
-                  case "all":
-                    isMonitored = true;
-                    break;
-                  case "future":
-                    isMonitored = new Date(video.contentDetails.videoPublishedAt) > new Date(channelMetadata.created);
-                    break;
-                  case "none":
-                    isMonitored = false;
-                    break;
-                }
-
-                const newChannel: CreateChannelVideo = {
-                  channel: channelMetadata.id,
-                  status: "none",
-                  youtube_id: video.contentDetails.videoId,
-                  title: video.snippet.title,
-                  description: video.snippet.description,
-                  image: video.snippet.thumbnails.default.url,
-                  published: video.contentDetails.videoPublishedAt,
-                  monitored: isMonitored,
-                };
-                batch.collection("channel_videos").create(newChannel);
+            const batch = pb.createBatch();
+            for (const video of listPayload.items) {
+              if (video.contentDetails.videoId === videoMetadata.items[0]?.youtube_id) {
+                await batch.send();
+                nextPageToken = "";
+                return;
               }
 
-              await batch.send();
-              pino.info(`Video list page: ${listPayload.etag} processed successully`);
-              nextPageToken = listPayload.nextPageToken;
+              let isMonitored = false;
+
+              switch (channelMetadata.monitored) {
+                case "all":
+                  isMonitored = true;
+                  break;
+                case "future":
+                  isMonitored = new Date(video.contentDetails.videoPublishedAt) > new Date(channelMetadata.created);
+                  break;
+                case "none":
+                  isMonitored = false;
+                  break;
+              }
+
+              const newChannel: CreateChannelVideo = {
+                channel: channelMetadata.id,
+                status: "none",
+                youtube_id: video.contentDetails.videoId,
+                title: video.snippet.title,
+                description: video.snippet.description,
+                image: video.snippet.thumbnails.default.url,
+                published: video.contentDetails.videoPublishedAt,
+                monitored: isMonitored,
+              };
+              batch.collection("channel_videos").create(newChannel);
             }
-          } while (nextPageToken);
-          break;
-        }
+
+            await batch.send();
+            pino.info(`Video list page: ${listPayload.etag} processed successully`);
+            nextPageToken = listPayload.nextPageToken;
+          }
+        } while (nextPageToken);
+        break;
       }
-    }
-    catch (e) {
-      throw e;
     }
   },
   {

@@ -1,6 +1,6 @@
 import { channelWorker } from "./channel";
+import { videoListSync, videoMonitor } from "./scheduler";
 import { videoWorker } from "./video";
-import { videoMonitor, videoListSync } from './scheduler';
 
 export const channel = channelWorker;
 export const video = videoWorker;

@@ -79,11 +79,11 @@ export const videoWorker = new Worker<VideoJob>(
       throw new Error("Video not found in library");
 
     const basePath = `${videoMetadata.channel.root_folder.path}/${videoMetadata.channel.name}`;
-
+    const safeTitle = videoMetadata.title.replace("'", "").replace(/:/g, " - ");
     return new Promise((resolve, reject) => {
       // Spawn yt-dlp as a child process with progress output
       const downloadProcess = spawn("yt-dlp", [
-        `-o "${basePath}/.tmp/${videoMetadata.title}.%(ext)s"`,
+        `-o "${basePath}/.tmp/${safeTitle}.%(ext)s"`,
         "-f",
         "bestvideo+bestaudio/best",
         "--merge-output-format",
@@ -93,8 +93,8 @@ export const videoWorker = new Worker<VideoJob>(
         `-S \"res:${videoMetadata.channel.quality.replace("p", "")},fps\"`,
         "--write-info-json",
         "--write-thumbnail",
-        `--exec "mv '${basePath}'/.tmp/'%(title)s'.mkv ${basePath}"`,
-        `--exec "mv '${basePath}'/.tmp/'%(title)s'.webp ${basePath}"`,
+        `--exec "EXT='%(ext)s' mv '${basePath}/.tmp/${safeTitle}.mkv' ${basePath}"`,
+        `--exec "EXT='%(ext)s' mv '${basePath}/.tmp/${safeTitle}.webp' ${basePath}"`,
         `"https://youtube.com/watch?v=${video}"`,
       ], {
         shell: true, // Use shell to properly handle quoted arguments
@@ -155,7 +155,7 @@ export const videoWorker = new Worker<VideoJob>(
               format_note: string;
               format_id: string;
             }
-            const infoJsonPath = path.resolve(process.cwd(), `${basePath}/.tmp/${videoMetadata.title}.info.json`);
+            const infoJsonPath = path.resolve(process.cwd(), `${basePath}/.tmp/${safeTitle}.info.json`);
             const infoJson = JSON.parse(fs.readFileSync(infoJsonPath, "utf-8"));
             const selectedFormat = infoJson.formats.find((format: formatObject) => format.format_id.toString() === selectedFormatId);
             const quality = selectedFormat ? selectedFormat.format_note : "Unknown";
@@ -186,7 +186,7 @@ export const videoWorker = new Worker<VideoJob>(
           // Add .nfo metadata file for new video
           try {
             const nfoContent = generateVideoNFO(videoMetadata);
-            fs.writeFileSync(`${basePath}/${videoMetadata.title}.nfo`, nfoContent);
+            fs.writeFileSync(`${basePath}/${safeTitle}.nfo`, nfoContent);
           }
           catch (e) {
             pino.error("Error creating metadata (.nfo) file");

@@ -10,7 +10,7 @@ const pb = new Pocketbase("http://localhost:8090");
 pb.collection("_superusers").authWithPassword("admin@ytarr.local", "admin_ytarr");
 
 export const videoMonitor
-  = cron.schedule("30 * * * *", async () => {
+  = cron.schedule("* * * * *", async () => {
     pino.info("Running video monitor task.");
     const pendingVideos = await pb.collection("channel_videos").getFullList<ChannelVideo>({
       filter: "monitored = true && status = \"none\" && channel.monitored != \"none\"",

@@ -32,18 +32,29 @@ export const channelWorker = new Worker<ChannelJob>(
           if (videoList.ok) {
             const listPayload: YoutubeAPIResponse = await videoList.json();
 
-            const additionalVideoDetails = await fetch(`${env.YOUTUBE_DATA_API_BASE_URL}/videos?id=${listPayload.items.map(pi => pi.contentDetails.videoId).join(",")}&key=${env.YOUTUBE_API_KEY}&part=contentDetails&maxResults=50`);
+            const additionalVideoDetails = await fetch(`${env.YOUTUBE_DATA_API_BASE_URL}/videos?id=${listPayload.items.map(pi => pi.contentDetails.videoId).join(",")}&key=${env.YOUTUBE_API_KEY}&part=contentDetails,liveStreamingDetails&maxResults=50`);
 
             const additionalVideoDetailsPayload: YoutubeAPIResponse = await additionalVideoDetails.json();
 
             if (!additionalVideoDetails.ok) pino.warn(additionalVideoDetailsPayload);
 
             const batch = pb.createBatch();
+            let batchSize = 0;
             for (const video of listPayload.items) {
               if (video.contentDetails.videoId === videoMetadata.items[0]?.youtube_id) {
-                await batch.send();
+                pino.debug(`Video: ${video.contentDetails.videoId} found in library. We reached the most recent video in our collection and will now exit the loop without adding the rest of this page or remaining pages.`);
+                if (batchSize > 0) await batch.send();
                 nextPageToken = "";
                 return;
+              }
+
+              // Handles edge case where youtube switches the order of videos around in the response
+              // Tends to happen with scheduled live streams when they start streaming
+              try {
+                await pb.collection('channel_videos').getFirstListItem(`youtube_id = "${video.contentDetails.videoId}"`);
+                continue;
+              } catch (err) {
+                pino.debug('Video not in library, proceding with sync.');
               }
 
               let isMonitored = false;
@@ -51,8 +62,14 @@ export const channelWorker = new Worker<ChannelJob>(
               const additionalDetails = additionalVideoDetails.ok ? additionalVideoDetailsPayload.items.find(v => v.id == video.contentDetails.videoId) : null;
 
               let isShort = false;
+              let isLive = false;
+              let isLiveFinished = false;
+              let liveScheduledDate: string = "";
               if (additionalDetails) {
-                isShort = parseYoutubeDuration(additionalDetails.contentDetails.duration) < 180;
+                isShort = !additionalDetails.liveStreamingDetails?.scheduledStartTime && parseYoutubeDuration(additionalDetails.contentDetails.duration) < 180;
+                isLive = !!additionalDetails.liveStreamingDetails?.scheduledStartTime;
+                isLiveFinished = !!additionalDetails.liveStreamingDetails?.actualEndTime;
+                if (isLive) liveScheduledDate = additionalDetails.liveStreamingDetails.scheduledStartTime
               }
 
               switch (channelMetadata.monitored) {
@@ -67,6 +84,8 @@ export const channelWorker = new Worker<ChannelJob>(
                   break;
               }
 
+              if (isShort && channelMetadata.ignore_shorts) isMonitored = false;
+
               const newChannel: CreateChannelVideo = {
                 channel: channelMetadata.id,
                 status: "none",
@@ -76,12 +95,15 @@ export const channelWorker = new Worker<ChannelJob>(
                 image: video.snippet.thumbnails.default.url,
                 published: video.contentDetails.videoPublishedAt,
                 monitored: isMonitored,
-                is_short: isShort
+                is_short: isShort,
+                is_live: isLive,
+                is_live_finished: isLiveFinished,
+                live_scheduled_date: liveScheduledDate
               };
               batch.collection("channel_videos").create(newChannel);
+              batchSize++;
             }
-
-            await batch.send();
+            if (batchSize > 0) await batch.send();
             pino.info(`Video list page: ${listPayload.etag} processed successully`);
             nextPageToken = listPayload.nextPageToken;
           }

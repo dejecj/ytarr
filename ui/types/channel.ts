@@ -45,6 +45,9 @@ interface BaseChannelVideo {
     progress?: number
     monitored: boolean
     is_short: boolean
+    is_live: boolean
+    is_live_finished: boolean
+    live_scheduled_date?: string
 }
 
 export interface ChannelVideo extends BaseChannelVideo {

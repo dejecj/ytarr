@@ -8,7 +8,8 @@ interface BaseChannel {
     monitored: "all" | "future" | "none"
     youtube_id: string
     quality: VideoQuality
-    description: string;
+    description: string
+    ignore_shorts: boolean
 }
 
 export interface Channel extends BaseChannel {
@@ -43,6 +44,7 @@ interface BaseChannelVideo {
     quality?: VideoQuality
     progress?: number
     monitored: boolean
+    is_short: boolean
 }
 
 export interface ChannelVideo extends BaseChannelVideo {

@@ -79,6 +79,7 @@ export interface YoutubeAPIResponse {
     contentDetails: {
       videoId: string;
       videoPublishedAt: string;
+      duration: string
     };
   }[];
 }

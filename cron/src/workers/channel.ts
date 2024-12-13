@@ -32,6 +32,12 @@ export const channelWorker = new Worker<ChannelJob>(
           if (videoList.ok) {
             const listPayload: YoutubeAPIResponse = await videoList.json();
 
+            const additionalVideoDetails = await fetch(`${env.YOUTUBE_DATA_API_BASE_URL}/videos?id=${listPayload.items.map(pi => pi.contentDetails.videoId).join(",")}&key=${env.YOUTUBE_API_KEY}&part=contentDetails&maxResults=50`);
+
+            const additionalVideoDetailsPayload: YoutubeAPIResponse = await additionalVideoDetails.json();
+
+            if (!additionalVideoDetails.ok) pino.warn(additionalVideoDetailsPayload);
+
             const batch = pb.createBatch();
             for (const video of listPayload.items) {
               if (video.contentDetails.videoId === videoMetadata.items[0]?.youtube_id) {
@@ -41,6 +47,13 @@ export const channelWorker = new Worker<ChannelJob>(
               }
 
               let isMonitored = false;
+
+              const additionalDetails = additionalVideoDetails.ok ? additionalVideoDetailsPayload.items.find(v => v.id == video.contentDetails.videoId) : null;
+
+              let isShort = false;
+              if (additionalDetails) {
+                isShort = parseYoutubeDuration(additionalDetails.contentDetails.duration) < 180;
+              }
 
               switch (channelMetadata.monitored) {
                 case "all":
@@ -63,6 +76,7 @@ export const channelWorker = new Worker<ChannelJob>(
                 image: video.snippet.thumbnails.default.url,
                 published: video.contentDetails.videoPublishedAt,
                 monitored: isMonitored,
+                is_short: isShort
               };
               batch.collection("channel_videos").create(newChannel);
             }
@@ -93,3 +107,34 @@ channelWorker.on("completed", (job) => {
 channelWorker.on("failed", (job, err) => {
   pino.error(`Job ${job?.id || "Unknown"} failed with error: ${err}`);
 });
+
+
+const parseYoutubeDuration = (durationStr: string) => {
+  // Remove 'PT' prefix
+  durationStr = durationStr.replace('PT', '');
+
+  // If empty, return 0
+  if (!durationStr) return 0;
+
+  let totalSeconds = 0;
+
+  // Match hours
+  const hoursMatch = durationStr.match(/(\d+)H/);
+  if (hoursMatch) {
+    totalSeconds += parseInt(hoursMatch[1]) * 3600;
+  }
+
+  // Match minutes
+  const minutesMatch = durationStr.match(/(\d+)M/);
+  if (minutesMatch) {
+    totalSeconds += parseInt(minutesMatch[1]) * 60;
+  }
+
+  // Match seconds
+  const secondsMatch = durationStr.match(/(\d+)S/);
+  if (secondsMatch) {
+    totalSeconds += parseInt(secondsMatch[1]);
+  }
+
+  return totalSeconds;
+}

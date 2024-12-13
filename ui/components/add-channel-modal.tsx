@@ -43,6 +43,7 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
     const [selectedRootFolder, setSelectedRootFolder] = useState<string>(rootFolders[0]?.id);
     const [selectedMonitor, setSelectedMonitor] = useState<"all" | "future" | "none">("future");
     const [selectedQuality, setSelectedQuality] = useState<"any" | "2160p" | "1080p" | "720p" | "480p" | "360p">("any");
+    const [ignoreShorts, setIgnoreShorts] = useState<boolean>(false);
 
     const addChannel = useCallback(async () => {
         setIsPending(true);
@@ -53,7 +54,8 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
             youtube_id: channel.channelId,
             root_folder: selectedRootFolder as string,
             quality: selectedQuality,
-            description: channel.description
+            description: channel.description,
+            ignore_shorts: ignoreShorts
         });
 
         if (newChannel.success) {
@@ -61,10 +63,9 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
             setIsAdded(true);
         } else {
             // TODO: add toaster with error message
-            console.error('Failed to add new channel', newChannel.error);
         }
         setIsPending(false);
-    }, [selectedRootFolder, channel, selectedMonitor, selectedQuality, onOpenChange]);
+    }, [selectedRootFolder, channel, selectedMonitor, selectedQuality, ignoreShorts, onOpenChange]);
 
     useEffect(() => {
         const getChannelStatus = async () => {
@@ -195,12 +196,12 @@ export function AddChannelModal({ channel, open, rootFolders, onOpenChange }: Ad
                                 </label>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <Checkbox id="cutoff-search" />
+                                <Checkbox id="ignore-shorts" onCheckedChange={(e: boolean) => setIgnoreShorts(e)} />
                                 <label
-                                    htmlFor="cutoff-search"
+                                    htmlFor="ignore-shorts"
                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                 >
-                                    Start search for cutoff unmet episodes
+                                    Don't monitor Shorts
                                 </label>
                             </div>
                         </div>

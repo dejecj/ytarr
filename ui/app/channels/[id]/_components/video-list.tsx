@@ -96,19 +96,18 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
     return (
       <div
         style={style}
-        className="grid grid-cols-[50px_1fr_2fr_150px_150px] items-center border-b last:border-b-0"
+        className="grid grid-cols-[50px_100px_2fr_150px_100px] items-center border-b last:border-b-0"
       >
         <div className="p-2">
-          <MonitorToggle video={video} initialState={video.monitored} />
+          <MonitorToggle video={video} initialState={video.monitored} disabled={(video.is_short && channel.ignore_shorts) || channel.monitored == 'none'} />
         </div>
         <div className="p-2 text-sm">{Math.abs(index - filteredVideos.length)}</div>
-        <div className="p-2 text-sm">{video.title}</div>
+        <div className="p-2 text-sm">{video.title} {video.is_short ? <Badge className="ml-2">Short</Badge> : ""}</div>
         <div className="p-2 text-sm">{new Date(video.published).toLocaleDateString()}</div>
         <div className="p-2">{renderStatus(video)}</div>
       </div>
     );
   }, [filteredVideos, renderStatus]);
-
 
   return (
     <div className="flex-grow bg-gray-100 p-6">
@@ -138,7 +137,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
         </div>
         <table className="w-full">
           <thead>
-            <tr className="grid grid-cols-[50px_1fr_2fr_150px_150px] bg-gray-50 border-b">
+            <tr className="grid grid-cols-[50px_100px_2fr_150px_100px] bg-gray-50 border-b">
               <th className="p-2 text-left font-medium text-gray-500"></th>
               <th className="p-2 text-left font-medium text-gray-500">#</th>
               <th className="p-2 text-left font-medium text-gray-500">Title</th>

@@ -13,7 +13,7 @@ export const videoMonitor
   = cron.schedule("* * * * *", async () => {
     pino.info("Running video monitor task.");
     const pendingVideos = await pb.collection("channel_videos").getFullList<ChannelVideo>({
-      filter: "monitored = true && status = \"none\" && channel.monitored != \"none\"",
+      filter: "monitored = true && status = \"none\" && channel.monitored != \"none\" && (channel.ignore_shorts != true || is_short = false)",
       sort: "+published",
     });
 

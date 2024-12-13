@@ -6,11 +6,13 @@ import { useCallback, useOptimistic, useTransition } from 'react'
 interface MonitorToggleProps {
   video: ChannelVideo
   initialState: boolean
+  disabled: boolean
 }
 
 export default function MonitorToggle({
   video,
-  initialState
+  initialState,
+  disabled
 }: MonitorToggleProps) {
   const [isMonitored, setIsMonitored] = useOptimistic(initialState);
   const [, startMonitorUpdate] = useTransition();
@@ -20,8 +22,12 @@ export default function MonitorToggle({
     await changeVideoMonitorStatus(video.id, !isMonitored);
   }, [video, initialState])
 
-  return <Bookmark
-    onClick={() => startMonitorUpdate(() => toggleMonitorState())}
-    className={`${isMonitored ? 'fill-primary stroke-none' : 'stroke-primary'} cursor-pointer`}
-  />
+  if (!disabled) {
+    return <Bookmark
+      onClick={() => startMonitorUpdate(() => toggleMonitorState())}
+      className={`${isMonitored ? 'fill-primary stroke-none' : 'stroke-primary'} cursor-pointer`}
+    />
+  } else {
+    return <Bookmark className='stroke-slate-300 cursor-not-allowed' />
+  }
 }

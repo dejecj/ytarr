@@ -2,7 +2,7 @@ import cron from "node-cron";
 import Pocketbase from "pocketbase";
 
 import { pinoInstance as pino } from "@/middlewares/pino-logger";
-import { downloadVideo, fetchVideoList } from "@/queues";
+import { downloadVideo, fetchVideoList, cleanupOrphanedVideos } from "@/queues";
 
 import type { Channel, ChannelVideo } from "../../../ui/types/channel";
 import env from "@/env";
@@ -57,4 +57,10 @@ export const videoListSync
         channel: channel.youtube_id,
       });
     }
+  });
+
+export const orphanedVideoCleanup
+  = cron.schedule("0 */6 * * *", async () => {
+    pino.info("Running orphaned video cleanup task.");
+    await cleanupOrphanedVideos();
   });

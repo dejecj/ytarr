@@ -8,7 +8,7 @@ function hashData(data: any): string {
   return crypto.createHash("md5").update(JSON.stringify(data)).digest("hex");
 }
 
-const channelMetadataDataQueue = new Queue<ChannelJob>("channel-metadata", {
+const channelMetadataDataQueue = new Queue<ChannelJob | null>("channel-metadata", {
   connection: { host: "127.0.0.1", port: 6379 },
 });
 const videoDownloadQueue = new Queue("video-download", {
@@ -28,6 +28,13 @@ export async function updateChannelMetadata(data: ChannelJob) {
   const jobId = hashData(data);
   await channelMetadataDataQueue.add("update-channel-metadata", data, {
     jobId,
+    removeOnComplete: true,
+    removeOnFail: true,
+  });
+}
+
+export async function cleanupOrphanedVideos() {
+  await channelMetadataDataQueue.add("cleanup-orphaned-videos", null, {
     removeOnComplete: true,
     removeOnFail: true,
   });

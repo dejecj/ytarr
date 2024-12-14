@@ -12,12 +12,10 @@ export type AppOpenAPI = OpenAPIHono<AppBindings>;
 export type AppRouteHandler<R extends RouteConfig> = RouteHandler<R, AppBindings>;
 
 export interface ChannelJob {
-  // type: 'fetch-video-channels' | 'update-channel-meta'
   channel: string;
 }
 
 export interface VideoJob {
-  // type: 'download-video'
   video: string;
 }
 

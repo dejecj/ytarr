@@ -110,6 +110,15 @@ export const channelWorker = new Worker<ChannelJob>(
         } while (nextPageToken);
         break;
       }
+      case "cleanup-orphaned-videos": {
+        const orphanedVideos = await pb.collection("channel_videos").getFullList<ChannelVideo>({
+          filter: `channel = ""`
+        });
+        for (let video of orphanedVideos) {
+          await pb.collection('channel_videos').delete(video.id);
+        }
+        break;
+      }
     }
   },
   {

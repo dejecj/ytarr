@@ -301,6 +301,22 @@ export const changeVideoMonitorStatus = async (id: string, status: boolean) => {
     }
 }
 
+export const changeChannelMonitorStatus = async (id: string, status: 'future' | 'none' | 'all') => {
+    try {
+        const pb = createServerClient();
+
+        let channel = await pb.collection('channels').update<Channel>(id, {
+            monitored: status
+        });
+
+        return new Response<Channel>("channel", channel).toJSON();
+    } catch (e) {
+        logger.error(e);
+        const error = new ApiError<BaseError>(e as Error).toJSON();
+        return new Response<Channel, undefined, BaseError>("channel", undefined, undefined, error).toJSON();
+    }
+}
+
 const generateChannelNFO = (channel: Channel): string => {
     const publishedDate = new Date(channel.published);
     const formatDate = (date: Date): string => {

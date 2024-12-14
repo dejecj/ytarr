@@ -1,36 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## TODO: Create proper readme file
+Should include setup instructions and important details and considerations when using the software.
 
-## Getting Started
+## License and Usage Guidelines
 
-First, run the development server:
+### License
+This project is released under the GNU General Public License v3.0 (GPL-3.0). By using, modifying, or distributing this software, you agree to the terms of the license.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Usage Expectations
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### API and Download Responsibilities
+- Users are **required** to:
+  - Obtain their own YouTube Data API keys
+  - Ensure compliance with YouTube's Terms of Service
+- This project provides a framework for video management and leverages existing opensource projects for obtaining video files.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+#### Redistribution
+- You may use, modify, and distribute this software
+- All modifications must be shared under the same GPL-3.0 license
+- Commercial use is discouraged and subject to strict open-source sharing requirements
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Disclaimer
+This software is provided "as-is" without warranty. Users are solely responsible for ensuring their use of the software complies with all applicable laws and terms of service.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Contributing
+We welcome community contributions that align with our open-source, ethically-minded approach. Please review our contribution guidelines before submitting pull requests.

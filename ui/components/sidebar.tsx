@@ -19,38 +19,38 @@ const menuItems: MenuItem[] = [
     icon: Film,
     subItems: [
       { name: "Add new", href: "/channels/new" },
-      { name: "Library Import", href: "/channels/import" }
+      // { name: "Library Import", href: "/channels/import" }
     ]
   },
-  { name: "Calendar", href: "/calendar", icon: Calendar },
-  {
-    name: "Activity",
-    href: "/activity/queue",
-    icon: Activity,
-    subItems: [
-      { name: "Queue", href: "/activity/queue" },
-      { name: "History", href: "/activity/history" },
-      { name: "Blocklist", href: "/activity/blocklist" }
-    ]
-  },
-  {
-    name: "Wanted",
-    href: "/wanted/missing",
-    icon: AlertTriangle,
-    subItems: [
-      { name: "Missing", href: "/wanted/missing" },
-      { name: "Cutoff Unmet", href: "/wanted/unmet" }
-    ]
-  },
+  // { name: "Calendar", href: "/calendar", icon: Calendar },
+  // {
+  //   name: "Activity",
+  //   href: "/activity/queue",
+  //   icon: Activity,
+  //   subItems: [
+  //     { name: "Queue", href: "/activity/queue" },
+  //     { name: "History", href: "/activity/history" },
+  //     { name: "Blocklist", href: "/activity/blocklist" }
+  //   ]
+  // },
+  // {
+  //   name: "Wanted",
+  //   href: "/wanted/missing",
+  //   icon: AlertTriangle,
+  //   subItems: [
+  //     { name: "Missing", href: "/wanted/missing" },
+  //     { name: "Cutoff Unmet", href: "/wanted/unmet" }
+  //   ]
+  // },
   {
     name: "Settings",
     href: "/settings/media/management",
     icon: Settings,
     subItems: [
       { name: "Media Management", href: "/settings/media/management" },
-      { name: "General", href: "/settings/general" },
-      { name: "UI", href: "/settings/ui" },
-      { name: "Tags", href: "/settings/tags" }
+      // { name: "General", href: "/settings/general" },
+      // { name: "UI", href: "/settings/ui" },
+      // { name: "Tags", href: "/settings/tags" }
     ]
   },
   {
@@ -58,7 +58,7 @@ const menuItems: MenuItem[] = [
     href: "/system/status",
     icon: Monitor,
     subItems: [
-      { name: "Status", href: "/system/status" },
+      // { name: "Status", href: "/system/status" },
       { name: "Log Files", href: "/system/logs/files" }
     ]
   }

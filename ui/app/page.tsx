@@ -19,7 +19,7 @@ export default async function Home() {
   return (
 
     <>
-      <Toolbar />
+      {/* <Toolbar />git status */}
       {renderChannels()}
     </>
   )

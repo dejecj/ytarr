@@ -2,7 +2,12 @@ import cron from "node-cron";
 import Pocketbase from "pocketbase";
 
 import { pinoInstance as pino } from "@/middlewares/pino-logger";
-import { downloadVideo, fetchVideoList, cleanupOrphanedVideos } from "@/queues";
+import {
+  downloadVideo,
+  fetchVideoList,
+  cleanupOrphanedVideos,
+  cleanupDownloadMetadata
+} from "@/queues";
 
 import type { Channel, ChannelVideo } from "../../../ui/types/channel";
 import env from "@/env";
@@ -12,7 +17,7 @@ const pb = new Pocketbase("http://localhost:8090");
 pb.collection("_superusers").authWithPassword("admin@ytarr.local", "admin_ytarr");
 
 export const videoMonitor
-  = cron.schedule("* * * * *", async () => {
+  = cron.schedule("*/5 * * * *", async () => {
     pino.info("Running video monitor task.");
     // IMPORTANT: This monitor can only queue up a maximum of 50 videos per minute.
     // This is done to avoid complex pagination logic in this function and increase predictability.
@@ -63,4 +68,10 @@ export const orphanedVideoCleanup
   = cron.schedule("0 */6 * * *", async () => {
     pino.info("Running orphaned video cleanup task.");
     await cleanupOrphanedVideos();
+  });
+
+export const downloadMetadataCleanup
+  = cron.schedule("0 */6 * * *", async () => {
+    pino.info("Running orphaned video cleanup task.");
+    await cleanupDownloadMetadata();
   });

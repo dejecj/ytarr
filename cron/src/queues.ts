@@ -14,6 +14,9 @@ const channelMetadataDataQueue = new Queue<ChannelJob | null>("channel-metadata"
 const videoDownloadQueue = new Queue("video-download", {
   connection: { host: "127.0.0.1", port: 6379 },
 });
+const garbageCollectionQueue = new Queue("garbage-collection", {
+  connection: { host: "127.0.0.1", port: 6379 },
+});
 
 export async function fetchVideoList(data: ChannelJob) {
   const jobId = hashData(data);
@@ -33,17 +36,24 @@ export async function updateChannelMetadata(data: ChannelJob) {
   });
 }
 
-export async function cleanupOrphanedVideos() {
-  await channelMetadataDataQueue.add("cleanup-orphaned-videos", null, {
+export async function downloadVideo(data: VideoJob) {
+  const jobId = hashData(data);
+  await videoDownloadQueue.add("download-video", data, {
+    jobId,
     removeOnComplete: true,
     removeOnFail: true,
   });
 }
 
-export async function downloadVideo(data: VideoJob) {
-  const jobId = hashData(data);
-  await videoDownloadQueue.add("download-video", data, {
-    jobId,
+export async function cleanupOrphanedVideos() {
+  await garbageCollectionQueue.add("cleanup-orphaned-videos", null, {
+    removeOnComplete: true,
+    removeOnFail: true,
+  });
+}
+
+export async function cleanupDownloadMetadata() {
+  await garbageCollectionQueue.add("cleanup-download-metadata", null, {
     removeOnComplete: true,
     removeOnFail: true,
   });

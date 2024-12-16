@@ -6,14 +6,16 @@ import Pocketbase from "pocketbase";
 
 import type { VideoJob } from "@/lib/types";
 
-import { pinoInstance as pino } from "@/middlewares/pino-logger";
+import { pinoInstance } from "@/middlewares/pino-logger";
 
 import type { ChannelVideo } from "../../../ui/types/channel";
+
+const pino = pinoInstance.child({ module: "cron::video-worker" });
 
 const pb = new Pocketbase("http://localhost:8090");
 pb.collection("_superusers").authWithPassword("admin@ytarr.local", "admin_ytarr");
 
-const generateVideoNFO = (video: ChannelVideo): string => {
+function generateVideoNFO(video: ChannelVideo): string {
   // Create a Date object from the published string
   const publishedDate = new Date(video.published);
 
@@ -23,14 +25,15 @@ const generateVideoNFO = (video: ChannelVideo): string => {
   };
 
   const truncateDescription = (desc: string, maxLength: number = 300): string => {
-    if (desc.length <= maxLength) return desc;
+    if (desc.length <= maxLength)
+      return desc;
 
     // Truncate at the last full word before maxLength
     const truncated = desc.substring(0, maxLength);
-    return truncated.substring(0, Math.min(
+    return `${truncated.substring(0, Math.min(
       truncated.length,
-      truncated.lastIndexOf(' ')
-    )) + '...';
+      truncated.lastIndexOf(" "),
+    ))}...`;
   };
 
   const escapeXml = (unsafe: string): string => {
@@ -40,7 +43,7 @@ const generateVideoNFO = (video: ChannelVideo): string => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&apos;");
-  }
+  };
 
   // Create the XML structure using standard NFO tags
   const nfoContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>

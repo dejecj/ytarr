@@ -1,7 +1,7 @@
 import { channelWorker } from "./channel";
-import { videoListSync, videoMonitor, orphanedVideoCleanup } from "./scheduler";
+import { garbageCollectionWorker } from "./garbage";
+import { orphanedVideoCleanup, videoListSync, videoMonitor } from "./scheduler";
 import { videoWorker } from "./video";
-import { garbageCollectionWorker } from './garbage';
 
 export const channel = channelWorker;
 export const video = videoWorker;

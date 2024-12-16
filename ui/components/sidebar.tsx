@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Film, Activity, AlertTriangle, Settings, Monitor } from 'lucide-react'
+import { Film, Settings, Monitor } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 type MenuItem = {

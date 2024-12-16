@@ -1,13 +1,14 @@
 import { Worker } from "bullmq";
-import Pocketbase from "pocketbase";
 import fs from "node:fs";
 import path from "node:path";
+import Pocketbase from "pocketbase";
 
-import env from "@/env";
-import { pinoInstance as pino } from "@/middlewares/pino-logger";
+import { pinoInstance } from "@/middlewares/pino-logger";
 
-import type { Channel, ChannelVideo, CreateChannelVideo } from "../../../ui/types/channel";
-import { RootFolder } from "../../../ui/types/fs";
+import type { ChannelVideo } from "../../../ui/types/channel";
+import type { RootFolder } from "../../../ui/types/fs";
+
+const pino = pinoInstance.child({ module: "cron::garbage-collection-worker" });
 
 const pb = new Pocketbase("http://localhost:8090");
 pb.collection("_superusers").authWithPassword("admin@ytarr.local", "admin_ytarr");
@@ -19,10 +20,10 @@ export const garbageCollectionWorker = new Worker(
     switch (job.name) {
       case "cleanup-orphaned-videos": {
         const orphanedVideos = await pb.collection("channel_videos").getFullList<ChannelVideo>({
-          filter: `channel = ""`
+          filter: `channel = ""`,
         });
-        for (let video of orphanedVideos) {
-          await pb.collection('channel_videos').delete(video.id);
+        for (const video of orphanedVideos) {
+          await pb.collection("channel_videos").delete(video.id);
         }
         break;
       }
@@ -41,11 +42,12 @@ export const garbageCollectionWorker = new Worker(
             }
 
             pino.info(`Cleared contents of: ${dirPath}`);
-          } catch (e) {
+          }
+          catch (e) {
             pino.error(`Error deleting files in directory ${dirPath}:`);
             pino.error(e);
           }
-        }
+        };
 
         /**
          * Recursively traverses a directory and finds .tmp folders to clear their contents.
@@ -59,24 +61,26 @@ export const garbageCollectionWorker = new Worker(
               const entryPath = path.join(basePath, entry.name);
 
               if (entry.isDirectory()) {
-                if (entry.name === '.tmp') {
+                if (entry.name === ".tmp") {
                   // Clear contents of the .tmp folder
                   await deleteFilesInDirectory(entryPath);
-                } else {
+                }
+                else {
                   // Recursively traverse subdirectories
                   await traverseAndClearTmpFolders(entryPath);
                 }
               }
             }
-          } catch (e) {
-            pino.error(`Error traversing directory ${basePath}:`);
-            pino.error(e)
           }
-        }
+          catch (e) {
+            pino.error(`Error traversing directory ${basePath}:`);
+            pino.error(e);
+          }
+        };
 
-        const rootFolders = await pb.collection('root_folders').getFullList<RootFolder>();
+        const rootFolders = await pb.collection("root_folders").getFullList<RootFolder>();
 
-        for (let folder of rootFolders) {
+        for (const folder of rootFolders) {
           await traverseAndClearTmpFolders(folder.path);
         }
 

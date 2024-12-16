@@ -5,12 +5,15 @@ import pretty from "pino-pretty";
 import env from "@/env";
 
 export const pinoInstance = pino({
-  level: env.LOG_LEVEL || "info",
-}, env.NODE_ENV !== "production" ? pretty() : undefined);
+  level: env.LOG_LEVEL,
+}, pino.multistream([
+  { level: env.LOG_LEVEL, stream: pino.destination({ dest: `${process.cwd()}/../logs.log`, sync: false }) },
+  { level: env.LOG_LEVEL, stream: env.NODE_ENV !== "production" ? pretty() : process.stdout },
+]));
 
 export function pinoLogger() {
   return logger({
-    pino: pinoInstance,
+    pino: pinoInstance.child({ module: "hono" }),
     http: {
       reqId: () => crypto.randomUUID(),
     },

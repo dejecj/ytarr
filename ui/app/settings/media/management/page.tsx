@@ -1,6 +1,8 @@
 import { listRootFolders } from "@/actions/fs"
 import { RootFoldersSection } from "@/components/root-folders"
 
+export const dynamic = 'force-dynamic';
+
 export default async function MediaManagementPage() {
 
   const rootFolders = await listRootFolders();

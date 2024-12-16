@@ -1,6 +1,7 @@
-import { Toolbar } from "@/components/toolbar"
 import { ChannelGrid } from "@/components/media-grid"
 import { list } from "@/actions/channels"
+
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
 

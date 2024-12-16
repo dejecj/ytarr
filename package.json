@@ -4,9 +4,9 @@
     "private": true,
     "scripts": {
         "ui:dev": "cd ui && pnpm dev",
-        "ui:build": "next build",
-        "ui:start": "next start",
-        "ui:lint": "next lint",
+        "ui:build": "cd ui && pnpm build",
+        "ui:start": "cd ui && pnpm start",
+        "ui:lint": "cd ui && pnpm lint",
         "cron:dev": "cd cron && pnpm dev",
         "db:start": "./pocketbase serve",
         "db:init": "./pocketbase superuser upsert admin@ytarr.local admin_ytarr && ./pocketbase migrate"

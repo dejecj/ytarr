@@ -39,3 +39,6 @@ next-env.d.ts
 #Pocketbase
 pb_data
 pocketbase
+
+# Logs
+**/*.log

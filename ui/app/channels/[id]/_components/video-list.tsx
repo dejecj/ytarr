@@ -13,6 +13,7 @@ import { downloadVideo } from '@/actions/channels'
 import MonitorToggle from './video-list-monitor'
 import { FixedSizeList as VirtualizedList } from 'react-window'
 import AutoSizer from 'react-virtualized-auto-sizer'
+import Client from 'pocketbase'
 
 interface VideoListProps {
   channel: Channel
@@ -23,7 +24,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
   const [videos, setVideos] = useState<ChannelVideo[]>(initialVideos);
   const [temporaryBlock, setTemporaryBlock] = useState<string[]>([]);
   const [filter, setFilter] = useState<string>('');
-  const pbRef = useRef<any>(null);
+  const pbRef = useRef<Client>(null);
 
   const filteredVideos = useMemo(() => {
     return videos.filter(video =>
@@ -107,7 +108,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
         <div className="p-2">{renderStatus(video)}</div>
       </div>
     );
-  }, [filteredVideos, renderStatus]);
+  }, [filteredVideos, renderStatus, channel]);
 
   return (
     <div className="flex-grow bg-gray-100 p-6">

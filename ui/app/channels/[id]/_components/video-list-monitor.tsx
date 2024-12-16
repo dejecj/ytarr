@@ -36,7 +36,7 @@ export default function MonitorToggle({
     if (channel) {
       await changeChannelMonitorStatus(channel.id, !isMonitored == true ? 'future' : 'none');
     }
-  }, [video, channel, initialState])
+  }, [video, channel, isMonitored, setIsMonitored])
 
   if (!disabled) {
     return <Bookmark

@@ -20,18 +20,18 @@ export interface VideoJob {
 }
 
 export interface YoutubeAPIResponse {
-  kind: string
-  etag: string
-  nextPageToken: string
-  regionCode: string
+  kind: string;
+  etag: string;
+  nextPageToken: string;
+  regionCode: string;
   pageInfo: {
-    totalResults: number
-    resultsPerPage: number
+    totalResults: number;
+    resultsPerPage: number;
   };
   items: {
-    kind: string
-    etag: string
-    id: string
+    kind: string;
+    etag: string;
+    id: string;
     snippet: {
       publishedAt: string;
       channelId: string;
@@ -73,16 +73,16 @@ export interface YoutubeAPIResponse {
       };
       videoOwnerChannelTitle: string;
       videoOwnerChannelId: string;
-    }
+    };
     contentDetails: {
       videoId: string;
       videoPublishedAt: string;
-      duration: string
-    }
+      duration: string;
+    };
     liveStreamingDetails: {
-      actualStartTime: string,
-      actualEndTime: string,
-      scheduledStartTime: string,
-    }
+      actualStartTime: string;
+      actualEndTime: string;
+      scheduledStartTime: string;
+    };
   }[];
 }

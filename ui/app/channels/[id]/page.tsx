@@ -6,7 +6,7 @@ import { formatNumber } from "@/lib/utils"
 import VideoList from "./_components/video-list"
 import TopBar from "./_components/top-bar"
 
-export default async function ChannelPage({ params }: { params: { id: string } }) {
+export default async function ChannelPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const channel = await get(id);
 

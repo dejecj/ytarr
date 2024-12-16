@@ -1,5 +1,5 @@
 "use client"
-import { Bookmark, Edit, History, Trash2 } from 'lucide-react'
+import { Edit, History, Trash2 } from 'lucide-react'
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -17,6 +17,7 @@ import { Channel } from '@/types/channel'
 import { remove } from '@/actions/channels'
 import MonitorToggle from './video-list-monitor'
 import { createBrowserClient } from '@/lib/pocketbase'
+import Client from 'pocketbase'
 
 interface TopBarProps {
   channel: Channel
@@ -33,7 +34,7 @@ export default function TopBar({ channel }: TopBarProps) {
     router.push('/')
   }, [channel.id, router]);
 
-  const pbRef = useRef<any>(null);
+  const pbRef = useRef<Client>(null);
 
   useEffect(() => {
     const pb = createBrowserClient();

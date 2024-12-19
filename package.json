@@ -5,11 +5,11 @@
     "scripts": {
         "ui:dev": "cd ui && pnpm dev",
         "ui:build": "cd ui && pnpm install && pnpm build",
-        "ui:start": "cd ui && pnpm start",
+        "ui:start": "cd ui && PORT=8020 pnpm start",
         "ui:lint": "cd ui && pnpm lint",
         "cron:dev": "cd cron && pnpm dev",
         "cron:build": "cd cron && pnpm install && pnpm build",
         "cron:start": "cd cron && pnpm start",
-        "db:start": "/db/pocketbase serve --http 0.0.0.0:8090"
+        "db:start": "/db/pocketbase serve --http 0.0.0.0:8030"
     }
 }

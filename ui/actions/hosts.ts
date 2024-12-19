@@ -36,12 +36,12 @@ export async function resolveHosts() {
 
     // Resolve API and DB hosts
     const apiHost = isLocal
-      ? `${localIP}:9999` // Replace PORT with your app's port
-      : REMOTE_API_HOST || 'localhost:9999';
+      ? `${localIP}:8010` // Replace PORT with your app's port
+      : REMOTE_API_HOST || 'localhost:8010';
 
     const dbHost = isLocal
-      ? `${localIP}:8090` // Replace PORT with your database port
-      : REMOTE_DB_HOST || 'localhost:8090';
+      ? `${localIP}:8030` // Replace PORT with your database port
+      : REMOTE_DB_HOST || 'localhost:8030';
 
     const hosts = { apiHost, dbHost };
     logger.debug(hosts);

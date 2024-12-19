@@ -7,9 +7,10 @@ import type { VideoJob } from "@/lib/types";
 
 import { pinoInstance } from "@/middlewares/pino-logger";
 
-import type { ChannelVideo } from "../../../ui/types/channel";
+import type { ChannelVideo, ChannelVideoPosition } from "../../../ui/types/channel";
 
 import { pb } from "@/lib/pocketbase";
+import { removeSpecialCharacters } from "@/lib/utils";
 
 const pino = pinoInstance.child({ module: "cron::video-worker" });
 
@@ -79,8 +80,11 @@ export const videoWorker = new Worker<VideoJob>(
     if (!videoMetadata)
       throw new Error("Video not found in library");
 
-    const basePath = `${videoMetadata.channel.root_folder.path}/${videoMetadata.channel.name}`;
-    const safeTitle = videoMetadata.title.replace("'", "").replace(/:/g, " - ");
+    const videoPosition = await pb.collection('channel_video_positions').getOne<ChannelVideoPosition>(videoMetadata.id);
+
+    const basePath = `${videoMetadata.channel.root_folder.path}/${removeSpecialCharacters(videoMetadata.channel.name)}`;
+    const safeTitle = removeSpecialCharacters(videoMetadata.title);
+    const finalVideoTitle = `S01E${videoPosition.position.toString().padStart(2, '0')} - ${videoMetadata.title}`;
     return new Promise((resolve, reject) => {
       // Spawn yt-dlp as a child process with progress output
       const downloadProcess = spawn("yt-dlp", [
@@ -94,8 +98,6 @@ export const videoWorker = new Worker<VideoJob>(
         `-S \"res:${videoMetadata.channel.quality.replace("p", "")},fps\"`,
         "--write-info-json",
         "--write-thumbnail",
-        `--exec "EXT='%(ext)s' mv '${basePath}/.tmp/${safeTitle}.mkv' ${basePath}"`,
-        `--exec "EXT='%(ext)s' mv '${basePath}/.tmp/${safeTitle}.webp' ${basePath}"`,
         `"https://youtube.com/watch?v=${video}"`,
       ], {
         shell: true, // Use shell to properly handle quoted arguments
@@ -150,6 +152,9 @@ export const videoWorker = new Worker<VideoJob>(
         if (code === 0) {
           pino.info(`Successfully downloaded video: ${video}`);
 
+          fs.renameSync(path.resolve(`${basePath}/.tmp/${safeTitle}.webp`), path.resolve(`${basePath}/${finalVideoTitle}.webp`))
+          fs.renameSync(path.resolve(`${basePath}/.tmp/${safeTitle}.mkv`), path.resolve(`${basePath}/${finalVideoTitle}.mkv`))
+
           // Read the .info.json file to get the quality (format_note)
           try {
             interface formatObject {
@@ -174,7 +179,7 @@ export const videoWorker = new Worker<VideoJob>(
 
           // Attempt to delete temporary files left over from download
           try {
-            fs.rmSync(path.resolve(process.cwd(), `${basePath}/.tmp/*`), {
+            fs.rmSync(path.resolve(`${basePath}/.tmp`), {
               recursive: true,
               force: true,
             });
@@ -187,7 +192,7 @@ export const videoWorker = new Worker<VideoJob>(
           // Add .nfo metadata file for new video
           try {
             const nfoContent = generateVideoNFO(videoMetadata);
-            fs.writeFileSync(`${basePath}/${safeTitle}.nfo`, nfoContent);
+            fs.writeFileSync(`${basePath}/${finalVideoTitle}.nfo`, nfoContent);
           }
           catch (e) {
             pino.error("Error creating metadata (.nfo) file");

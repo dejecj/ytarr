@@ -130,3 +130,15 @@ export interface YoutubeAPIResponse {
         }
     }[]
 }
+
+export interface ChannelVideoPosition {
+    id: string
+    created: string
+    updated: string
+    collectionId: string
+    collectionName: string
+    expand?: Record<string, any>
+    channel: string,
+    position: number,
+    published: string
+}

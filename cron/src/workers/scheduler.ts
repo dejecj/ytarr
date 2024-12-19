@@ -14,6 +14,7 @@ import {
 import type { Channel, ChannelVideo } from "../../../ui/types/channel";
 
 import { pb } from "@/lib/pocketbase";
+import { YOUTUBE_DATA_API_BASE_URL } from "@/lib/constants";
 
 const pino = pinoInstance.child({ module: "cron::scheduler" });
 
@@ -31,7 +32,7 @@ export const videoMonitor
     if (!pendingVideos.items.length)
       return;
 
-    const videoDetails = await fetch(`${env.YOUTUBE_DATA_API_BASE_URL}/videos?id=${pendingVideos.items.map(pv => pv.youtube_id).join(",")}&key=${env.YOUTUBE_API_KEY}&part=liveStreamingDetails&maxResults=50`);
+    const videoDetails = await fetch(`${YOUTUBE_DATA_API_BASE_URL}/videos?id=${pendingVideos.items.map(pv => pv.youtube_id).join(",")}&key=${env.YOUTUBE_API_KEY}&part=liveStreamingDetails&maxResults=50`);
 
     const videoDetailsPayload: YoutubeAPIResponse = await videoDetails.json();
 

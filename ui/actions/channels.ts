@@ -6,6 +6,7 @@ import { ApiError, BaseError } from "@/types/errors";
 import { createServerClient } from '@/lib/pocketbase';
 import fs from "node:fs";
 import { logger } from '@/lib/logger';
+import { removeSpecialCharacters } from "@/lib/utils";
 
 export const list = async () => {
     try {
@@ -152,7 +153,7 @@ export const add = async (channel: CreateChannel) => {
         delete newChannel.expand;
 
 
-        let syncVideoJob = await fetch('http://localhost:9999/jobs', {
+        let syncVideoJob = await fetch('http://localhost:8010/jobs', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -169,7 +170,7 @@ export const add = async (channel: CreateChannel) => {
             logger.warn(Object.assign(error, errorResponse));
         }
 
-        const basePath = `${newChannel.root_folder.path}/${newChannel.name}`;
+        const basePath = `${newChannel.root_folder.path}/${removeSpecialCharacters(newChannel.name)}`;
 
         try {
             const nfoContent = generateChannelNFO(newChannel);
@@ -260,7 +261,7 @@ export const downloadVideo = async (youtube_id: string) => {
 
         let video = await pb.collection('channel_videos').getFirstListItem<ChannelVideo>(`youtube_id = "${youtube_id}"`);
 
-        let videoDownloadJob = await fetch('http://localhost:9999/jobs', {
+        let videoDownloadJob = await fetch('http://localhost:8010/jobs', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

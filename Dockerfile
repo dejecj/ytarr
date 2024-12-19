@@ -41,18 +41,17 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | b
 # Install Redis
 RUN apt-get update && apt-get install -y redis-server
 
-
 # Install yt-dlp
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/download/${YTDLP_VERSION}/yt-dlp -o /usr/local/bin/yt-dlp \
     && chmod a+rx /usr/local/bin/yt-dlp
-
-# Create required directories
-RUN mkdir -p /db /config /config/logs
 
 # Download specific Pocketbase version
 RUN wget https://github.com/pocketbase/pocketbase/releases/download/v${POCKETBASE_VERSION}/pocketbase_${POCKETBASE_VERSION}_linux_amd64.zip -O /tmp/pocketbase.zip \
     && unzip /tmp/pocketbase.zip -d /db/ \
     && rm /tmp/pocketbase.zip
+
+# Create required directories
+RUN mkdir -p /db /config /config/logs
 
 # Configure logrotate for ytarr logs
 RUN printf "/config/logs/ytarr.txt {\n\
@@ -63,10 +62,6 @@ RUN printf "/config/logs/ytarr.txt {\n\
     missingok\n\
     notifempty\n\
 }" > /etc/logrotate.d/ytarr
-
-# Default config file
-RUN mkdir -p $(dirname /config/config.json) && \
-    printf '{"settings":{"initialized":false,"version":"0.1.0"}}' > /config/config.json
 
 # Copy application files
 COPY . /app
@@ -87,9 +82,16 @@ RUN export NVM_DIR="/root/.nvm" && \
 
 # Prepare startup script
 RUN echo '#!/bin/bash\n\
-# Initialize NVM environment\n\
 export NVM_DIR="/root/.nvm"\n\
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"\n\
+\n\
+# Create necessary directories if not already present\n\
+mkdir -p /config /config/logs /db\n\
+\n\
+# Initialize default config file if not present\n\
+if [ ! -f /config/config.json ]; then\n\
+    printf "{\"settings\":{\"initialized\":false,\"version\":\"0.0.1\"}}" > /config/config.json\n\
+fi\n\
 \n\
 # Start services using PM2 configuration file\n\
 pm2 start /app/pm2.config.json\n\
@@ -99,9 +101,8 @@ pm2 logs' > /start.sh \
     && chmod +x /start.sh
 
 # Expose necessary ports
-EXPOSE 3000
-EXPOSE 9999
-EXPOSE 8090
+EXPOSE 8020
+EXPOSE 8030
 
 # Set entrypoint
 ENTRYPOINT ["/start.sh"]

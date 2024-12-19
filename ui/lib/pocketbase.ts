@@ -37,7 +37,7 @@ export function createServerClient(cookieStore?: ReadonlyRequestCookies) {
     }
 
     const client = new PocketBase(
-        'http://localhost:8090'
+        'http://localhost:8030'
     );
 
     if (cookieStore) {

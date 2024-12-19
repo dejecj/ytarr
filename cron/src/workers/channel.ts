@@ -7,6 +7,7 @@ import { pinoInstance } from "@/middlewares/pino-logger";
 
 import type { Channel, ChannelVideo, CreateChannelVideo } from "../../../ui/types/channel";
 import { pb } from "@/lib/pocketbase";
+import { YOUTUBE_DATA_API_BASE_URL } from "@/lib/constants";
 const pino = pinoInstance.child({ module: "cron::channel-worker" });
 
 export const channelWorker = new Worker<ChannelJob>(
@@ -26,11 +27,11 @@ export const channelWorker = new Worker<ChannelJob>(
 
         let nextPageToken: string = "";
         do {
-          const videoList = await fetch(`${env.YOUTUBE_DATA_API_BASE_URL}/playlistItems?playlistId=${channelMetadata.upload_playlist}&key=${env.YOUTUBE_API_KEY}&part=snippet,contentDetails&maxResults=50&pageToken=${nextPageToken}`);
+          const videoList = await fetch(`${YOUTUBE_DATA_API_BASE_URL}/playlistItems?playlistId=${channelMetadata.upload_playlist}&key=${env.YOUTUBE_API_KEY}&part=snippet,contentDetails&maxResults=50&pageToken=${nextPageToken}`);
           if (videoList.ok) {
             const listPayload: YoutubeAPIResponse = await videoList.json();
 
-            const additionalVideoDetails = await fetch(`${env.YOUTUBE_DATA_API_BASE_URL}/videos?id=${listPayload.items.map(pi => pi.contentDetails.videoId).join(",")}&key=${env.YOUTUBE_API_KEY}&part=contentDetails,liveStreamingDetails&maxResults=50`);
+            const additionalVideoDetails = await fetch(`${YOUTUBE_DATA_API_BASE_URL}/videos?id=${listPayload.items.map(pi => pi.contentDetails.videoId).join(",")}&key=${env.YOUTUBE_API_KEY}&part=contentDetails,liveStreamingDetails&maxResults=50`);
 
             const additionalVideoDetailsPayload: YoutubeAPIResponse = await additionalVideoDetails.json();
 

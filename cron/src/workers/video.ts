@@ -2,7 +2,6 @@ import { Worker } from "bullmq";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import Pocketbase from "pocketbase";
 
 import type { VideoJob } from "@/lib/types";
 
@@ -10,10 +9,9 @@ import { pinoInstance } from "@/middlewares/pino-logger";
 
 import type { ChannelVideo } from "../../../ui/types/channel";
 
-const pino = pinoInstance.child({ module: "cron::video-worker" });
+import { pb } from "@/lib/pocketbase";
 
-const pb = new Pocketbase("http://localhost:8090");
-pb.collection("_superusers").authWithPassword("admin@ytarr.local", "admin_ytarr");
+const pino = pinoInstance.child({ module: "cron::video-worker" });
 
 function generateVideoNFO(video: ChannelVideo): string {
   // Create a Date object from the published string

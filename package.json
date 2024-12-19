@@ -4,11 +4,12 @@
     "private": true,
     "scripts": {
         "ui:dev": "cd ui && pnpm dev",
-        "ui:build": "cd ui && pnpm build",
+        "ui:build": "cd ui && pnpm install && pnpm build",
         "ui:start": "cd ui && pnpm start",
         "ui:lint": "cd ui && pnpm lint",
         "cron:dev": "cd cron && pnpm dev",
-        "db:start": "./pocketbase serve",
-        "db:init": "./pocketbase superuser upsert admin@ytarr.local admin_ytarr && ./pocketbase migrate"
+        "cron:build": "cd cron && pnpm install && pnpm build",
+        "cron:start": "cd cron && pnpm start",
+        "db:start": "/db/pocketbase serve --http 0.0.0.0:8090"
     }
 }

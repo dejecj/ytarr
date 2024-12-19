@@ -1,4 +1,4 @@
-type ObjectType = "channel" | "fs" | "video";
+type ObjectType = "channel" | "fs" | "video" | "hosts";
 
 interface ISuccessResponse<D, P = undefined> {
     success: true;

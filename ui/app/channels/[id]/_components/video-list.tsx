@@ -18,9 +18,10 @@ import Client from 'pocketbase'
 interface VideoListProps {
   channel: Channel
   initialVideos: ChannelVideo[]
+  dbHost: string
 }
 
-export default function VideoList({ channel, initialVideos }: VideoListProps) {
+export default function VideoList({ channel, initialVideos, dbHost }: VideoListProps) {
   const [videos, setVideos] = useState<ChannelVideo[]>(initialVideos);
   const [temporaryBlock, setTemporaryBlock] = useState<string[]>([]);
   const [filter, setFilter] = useState<string>('');
@@ -62,7 +63,7 @@ export default function VideoList({ channel, initialVideos }: VideoListProps) {
   }, [temporaryBlock, requestDownload]);
 
   useEffect(() => {
-    const pb = createBrowserClient();
+    const pb = createBrowserClient(dbHost);
     pbRef.current = pb;
 
     try {

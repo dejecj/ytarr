@@ -1,3 +1,32 @@
+# Ytarr  
+
+**Your Personal YouTube Channel Manager**  
+
+Simplify how you track and download your favorite YouTube content! **Ytarr** is an open-source software designed for video enthusiasts, offering powerful automation and organization tools. Inspired by Sonarr, it specializes in managing YouTube channels seamlessly.  
+
+## Key Features  
+
+- **Automatic Video Monitoring**  
+  Add your favorite channels to a watchlist and let the software continuously check for new videos.  
+
+- **Flexible Monitoring Options**  
+  Choose to monitor only future uploads, all content, or pause monitoring entirely.  
+
+- **Smart Livestream Handling**  
+  Automatically waits for livestreams to finish before downloading.  
+
+- **Shorts Filtering**  
+  Skip YouTube Shorts if you prefer longer content.  
+
+- **Organized Libraries**  
+  Categorize channels with multiple library folders for easy management.  
+
+- **Rich Metadata & Thumbnails**  
+  Channel-level and video-level metadata with thumbnails ensure perfect compatibility with media servers like Plex and Jellyfin.  
+
+Whether you're building a personal video archive or enhancing your media server experience, **Ytarr** is your ultimate YouTube channel companion.
+
+
 ## TODO: Create proper readme file
 Should include setup instructions and important details and considerations when using the software.
 

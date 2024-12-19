@@ -1,5 +1,4 @@
 import cron from "node-cron";
-import Pocketbase from "pocketbase";
 
 import type { YoutubeAPIResponse } from "@/lib/types";
 
@@ -14,10 +13,9 @@ import {
 
 import type { Channel, ChannelVideo } from "../../../ui/types/channel";
 
-const pino = pinoInstance.child({ module: "cron::scheduler" });
+import { pb } from "@/lib/pocketbase";
 
-const pb = new Pocketbase("http://localhost:8090");
-pb.collection("_superusers").authWithPassword("admin@ytarr.local", "admin_ytarr");
+const pino = pinoInstance.child({ module: "cron::scheduler" });
 
 export const videoMonitor
   = cron.schedule("*/5 * * * *", async () => {

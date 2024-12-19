@@ -1,0 +1,23 @@
+{
+  "apps": [
+    {
+      "name": "db:start",
+      "script": "pnpm",
+      "args": "db:start"
+    },
+    {
+      "name": "ui:start",
+      "script": "pnpm",
+      "args": "ui:start"
+    },
+    {
+      "name": "cron:start",
+      "script": "pnpm",
+      "args": "cron:start"
+    },
+    {
+      "name": "redis-server",
+      "script": "redis-server"
+    }
+  ]
+}

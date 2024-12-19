@@ -1,5 +1,4 @@
 import { Worker } from "bullmq";
-import Pocketbase from "pocketbase";
 
 import type { ChannelJob, YoutubeAPIResponse } from "@/lib/types";
 
@@ -7,11 +6,8 @@ import env from "@/env";
 import { pinoInstance } from "@/middlewares/pino-logger";
 
 import type { Channel, ChannelVideo, CreateChannelVideo } from "../../../ui/types/channel";
-
+import { pb } from "@/lib/pocketbase";
 const pino = pinoInstance.child({ module: "cron::channel-worker" });
-
-const pb = new Pocketbase("http://localhost:8090");
-pb.collection("_superusers").authWithPassword("admin@ytarr.local", "admin_ytarr");
 
 export const channelWorker = new Worker<ChannelJob>(
   "channel-metadata",

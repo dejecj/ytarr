@@ -11,14 +11,13 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
   switch (jobData.type) {
     case "download-video": {
       await Jobs.downloadVideo({
-        channel: jobData.channel,
-        video: jobData.video,
+        video: jobData.video as string,
       });
       break;
     }
     case "update-channel-meta": {
       await Jobs.updateChannelMetadata({
-        channel: jobData.channel,
+        channel: jobData.channel as string,
       });
       break;
     }

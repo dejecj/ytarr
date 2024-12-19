@@ -7,7 +7,7 @@ import env from "@/env";
 export const pinoInstance = pino({
   level: env.LOG_LEVEL,
 }, pino.multistream([
-  { level: env.LOG_LEVEL, stream: pino.destination({ dest: `${process.cwd()}/../logs.log`, sync: false }) },
+  { level: env.LOG_LEVEL, stream: pino.destination({ dest: '/config/logs/ytarr.txt', sync: false }) },
   { level: env.LOG_LEVEL, stream: env.NODE_ENV !== "production" ? pretty() : process.stdout },
 ]));
 

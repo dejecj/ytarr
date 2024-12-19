@@ -55,11 +55,11 @@ const menuItems: MenuItem[] = [
   },
   {
     name: "System",
-    href: "/system/status",
+    href: "/system/logs",
     icon: Monitor,
     subItems: [
       // { name: "Status", href: "/system/status" },
-      { name: "Log Files", href: "/system/logs/files" }
+      { name: "Log Files", href: "/system/logs" }
     ]
   }
 ]

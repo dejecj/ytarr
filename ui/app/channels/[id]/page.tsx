@@ -5,10 +5,12 @@ import { get, listAllVideos } from "@/actions/channels"
 import { formatNumber } from "@/lib/utils"
 import VideoList from "./_components/video-list"
 import TopBar from "./_components/top-bar"
+import { resolveHosts } from "@/actions/hosts"
 
 export default async function ChannelPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const channel = await get(id);
+  const hostRes = await resolveHosts();
 
   const splitKeywords = (keywordsString: string) => {
     const keywords = [];
@@ -44,14 +46,14 @@ export default async function ChannelPage({ params }: { params: Promise<{ id: st
     return keywords;
   }
 
-  if (channel.success) {
+  if (channel.success && hostRes.success) {
     const channelData = channel.data;
 
     const videos = await listAllVideos(channelData.id);
     return (
       <div className="flex flex-col min-h-screen">
         {/* Top Action Bar */}
-        <TopBar channel={channelData} />
+        <TopBar channel={channelData} dbHost={hostRes.data.dbHost} />
 
         {/* Banner and Channel Info */}
         <div className="relative h-[300px]">
@@ -110,7 +112,7 @@ export default async function ChannelPage({ params }: { params: Promise<{ id: st
         </div>
 
         {/* Video List */}
-        <VideoList channel={channelData} initialVideos={videos.success ? videos.data : []} />
+        <VideoList channel={channelData} initialVideos={videos.success ? videos.data : []} dbHost={hostRes.data.dbHost} />
       </div>
     )
   } else {

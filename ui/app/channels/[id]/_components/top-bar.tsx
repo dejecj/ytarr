@@ -20,10 +20,11 @@ import { createBrowserClient } from '@/lib/pocketbase'
 import Client from 'pocketbase'
 
 interface TopBarProps {
-  channel: Channel
+  channel: Channel,
+  dbHost: string
 }
 
-export default function TopBar({ channel }: TopBarProps) {
+export default function TopBar({ channel, dbHost }: TopBarProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [stateChannel, setStateChannel] = useState<Channel>(channel)
   const router = useRouter()
@@ -37,7 +38,7 @@ export default function TopBar({ channel }: TopBarProps) {
   const pbRef = useRef<Client>(null);
 
   useEffect(() => {
-    const pb = createBrowserClient();
+    const pb = createBrowserClient(dbHost);
     pbRef.current = pb;
 
     try {

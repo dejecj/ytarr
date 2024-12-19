@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "start": "node dist/cron/src/index.js",
+    "build": "tsc && tsc-alias --debug",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -25,10 +27,12 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.11.2",
-    "@types/node": "^20.11.17",
+    "@types/node": "^20.17.9",
     "@types/node-cron": "^3.0.11",
     "eslint": "^9.15.0",
     "eslint-plugin-format": "^0.1.2",
-    "tsx": "^4.7.1"
+    "tsc-alias": "^1.8.10",
+    "tsx": "^4.7.1",
+    "typescript": "^5.7.2"
   }
 }

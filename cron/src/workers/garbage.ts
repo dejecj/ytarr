@@ -1,17 +1,15 @@
 import { Worker } from "bullmq";
 import fs from "node:fs";
 import path from "node:path";
-import Pocketbase from "pocketbase";
 
 import { pinoInstance } from "@/middlewares/pino-logger";
 
 import type { ChannelVideo } from "../../../ui/types/channel";
 import type { RootFolder } from "../../../ui/types/fs";
 
-const pino = pinoInstance.child({ module: "cron::garbage-collection-worker" });
+import { pb } from "@/lib/pocketbase";
 
-const pb = new Pocketbase("http://localhost:8090");
-pb.collection("_superusers").authWithPassword("admin@ytarr.local", "admin_ytarr");
+const pino = pinoInstance.child({ module: "cron::garbage-collection-worker" });
 
 export const garbageCollectionWorker = new Worker(
   "garbage-collection",
